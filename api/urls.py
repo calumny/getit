@@ -7,6 +7,8 @@ urlpatterns = [
     url(r'get_token/', views.get_token),
     url(r'get_it/', views.get_it),
     url(r'give_it/', views.give_it),
+    url(r'count/', views.count),
+    url(r'status/', views.status),
     url(r'get_generations/', views.get_generations),
     
 ]

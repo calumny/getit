@@ -75,6 +75,18 @@ def did_i_give_it(request):
         if children > request.data['children']:
             return JSONResponse(True)
     return JSONResponse(False)
+
+@api_view(['GET'])    
+def count(request):
+    return JSONResponse(Player.objects.filter(has_it=True).count())
+
+@api_view(['GET'])    
+def did_i_give_it(request):
+    if request.user.is_authenticated:
+        user = request.user
+        player = Player.objects.get(user = user)
+        return JSONResponse(player.has_it)
+    return JSONResponse(False)
         
 @api_view(['POST'])
 def get_it(request):
