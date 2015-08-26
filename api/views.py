@@ -109,7 +109,7 @@ def register(request):
     return JSONResponse({'key':token.key})
     
                 
-@api_view(['GET'])
+@api_view(['POST'])
 def get_token(request):
     user = User.objects.get(username = request.data['username'])
     token = Token.objects.get(user = user)
