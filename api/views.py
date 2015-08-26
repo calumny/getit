@@ -81,7 +81,7 @@ def count(request):
     return JSONResponse(Player.objects.filter(has_it=True).count())
 
 @api_view(['GET'])    
-def did_i_give_it(request):
+def status(request):
     if request.user.is_authenticated:
         user = request.user
         player = Player.objects.get(user = user)
