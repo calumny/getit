@@ -63,15 +63,15 @@ def give_it(request):
             player.lat = request.data['lat']
             player.lon = request.data['lon']
             player.save()
-            return JSONResponse(player.player_set.all().count())
-    return JSONResponse(-1)
+            return JSONResponse(True)
+    return JSONResponse(False)
 
 @api_view(['GET'])    
 def did_i_give_it(request):
     if request.user.is_authenticated:
         user = request.user
         player = Player.objects.get(user = user)
-        children = player.player_set.all().count()
+        children = player.child.all().count()
         if children > request.data['children']:
             return JSONResponse(True)
     return JSONResponse(False)
