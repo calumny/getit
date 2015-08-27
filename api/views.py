@@ -40,7 +40,7 @@ def add_generation(current_generation, generation_number, generations_list):
     if (generation_count == 0):
         return generations_list
     else:
-        generations_list.append([generation_number, generation_count])
+        generations_list.append({"generation":generation_number, "count":generation_count})
         return add_generation(next_generation, generation_number + 1, generations_list)
     
 @api_view(['GET'])
