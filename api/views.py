@@ -49,7 +49,7 @@ def get_generations(request):
         user = request.user
         player = Player.objects.get(user = user)
         generations_list = []
-        generations_list = add_generation(player, 0, generations_list)
+        generations_list = add_generation([player], 0, generations_list)
         return JSONResponse(generations_list)
     return JSONResponse([])
 
