@@ -60,7 +60,7 @@ def give_it(request):
         user = request.user
         player = Player.objects.get(user = user)
         if player.has_it:
-            player.last_gave_it = datetime.now()
+            player.last_gave_it = timezone.now()
             player.lat = request.data['lat']
             player.lon = request.data['lon']
             player.save()
