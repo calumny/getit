@@ -11,6 +11,7 @@ from django import template
 from django.utils.six import BytesIO
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
+from django.utils import timezone
 
 from rest_framework.authtoken.models import Token
 
@@ -93,7 +94,7 @@ def get_it(request):
         user = request.user
         player = Player.objects.get(user = user)
         if not player.has_it:
-            time_threshold = datetime.now() - timedelta(seconds=10)
+            time_threshold = timezone.now() - timedelta(seconds=10)
             recently_gave = Player.objects.filter(last_gave_it__gt=time_threshold, has_it=True)
             lat = request.data['lat']
             lon = request.data['lon']
