@@ -86,6 +86,7 @@ def status(request):
         user = request.user
         player = Player.objects.get(user = user)
         print(player.has_it)
+	print(player.id)
 	return JSONResponse(player.has_it)
     return JSONResponse(False)
         
@@ -104,7 +105,13 @@ def get_it(request):
 
 
 	    for giver in recently_gave:
-                if abs(giver.lat - lat) < 0.01:
+		deltaLat = abs(giver.lat - lat)
+		deltaLon = abs(giver.lon - lon)
+		x = deltaLon * math.cos(lat)
+		R = 6371000
+		dist = R * math.sqrt(math.pow(x, 2) + math.pow(deltaLat, 2))
+
+                if dist < 20:
 
                     player.parent = giver
 
