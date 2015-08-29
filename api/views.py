@@ -73,9 +73,8 @@ def did_i_give_it(request):
         user = request.user
         player = Player.objects.get(user = user)
         children = player.child.all().count()
-        if children > request.data['children']:
-            return JSONResponse(True)
-    return JSONResponse(False)
+        return JSONResponse(children)
+    return JSONResponse(0)
 
 @api_view(['GET'])    
 def count(request):
@@ -86,7 +85,8 @@ def status(request):
     if request.user.is_authenticated:
         user = request.user
         player = Player.objects.get(user = user)
-        return JSONResponse(player.has_it)
+        print(player.has_it)
+	return JSONResponse(player.has_it)
     return JSONResponse(False)
         
 @api_view(['POST'])
@@ -94,19 +94,27 @@ def get_it(request):
         user = request.user
         player = Player.objects.get(user = user)
         if not player.has_it:
-            time_threshold = timezone.now() - timedelta(seconds=10)
+            time_threshold = timezone.now() - timedelta(seconds=5)
             recently_gave = Player.objects.filter(last_gave_it__gt=time_threshold, has_it=True)
             lat = request.data['lat']
             lon = request.data['lon']
             player.lat = lat
             player.lon = lon
-            for giver in recently_gave:
+            player.save()
+
+
+	    for giver in recently_gave:
                 if abs(giver.lat - lat) < 0.01:
+
                     player.parent = giver
-                    player.generation = giver.generation + 1
-                    player.last_got_it = datetime.now()
-                    player.has_it = True
-                    player.save()
+
+		    player.generation = giver.generation + 1
+
+		    player.last_got_it = timezone.now()
+
+		    player.has_it = True
+
+		    player.save()
                     return JSONResponse(True)            
             return JSONResponse(False)
         else:
