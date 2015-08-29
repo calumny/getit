@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'register/', views.register),
     url(r'get_token/', views.get_token),
     url(r'get_it/', views.get_it),
+    url(r'did_i_give_it/', views.did_i_give_it),
     url(r'give_it/', views.give_it),
     url(r'count/', views.count),
     url(r'status/', views.status),

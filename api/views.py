@@ -12,6 +12,7 @@ from django.utils.six import BytesIO
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from django.utils import timezone
+import math
 
 from rest_framework.authtoken.models import Token
 
@@ -105,13 +106,17 @@ def get_it(request):
 
 
 	    for giver in recently_gave:
-		deltaLat = abs(giver.lat - lat)
-		deltaLon = abs(giver.lon - lon)
-		x = deltaLon * math.cos(lat)
+		deltaLat = math.radians(abs(giver.lat - lat))
+		deltaLon = math.radians(abs(giver.lon - lon))
+		print(deltaLat)
+		print(deltaLon)
+		x = deltaLon * math.cos(math.radians(lat))
+		print(x)
 		R = 6371000
 		dist = R * math.sqrt(math.pow(x, 2) + math.pow(deltaLat, 2))
+		print(dist)
 
-                if dist < 20:
+                if dist < 1000:
 
                     player.parent = giver
 
