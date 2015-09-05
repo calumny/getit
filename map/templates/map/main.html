@@ -105,6 +105,7 @@
 </head>
 <body>
     <div id="map"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
     <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
     <script src="http://www.sumbera.com/gist/js/leaflet/canvas/L.CanvasOverlay.js"></script>
@@ -112,7 +113,16 @@
 
 
     <script>
+//        var cars = d3.csv("cars.csv")
+//    .get(function(error, rows) { console.log(rows); });
+        
+        d3.csv("static/testDataCZ.csv")
+    .get(function(error, incidents) { 
 
+        var geoData = incidents;
+            
+            console.log(geoData);
+            
         var leafletMap = L.map('map').setView([50.00, 14.44], 8);
         
         //L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-background,$fff[difference],$fff[@23],$fff[hsl-saturation@20],toner-lines[destination-in])/{z}/{x}/{y}.png")
@@ -170,19 +180,22 @@
 
         // -- data
         var verts = [];
-
-        data.map(function (d, i) {
-             pixel = LatLongToPixelXY(d[0], d[1]);
+            
+        geoData.map(function(d, i) {
+             pixel = LatLongToPixelXY(d.latitude, d.longitude);
+//            alert(pixel.x);
             //-- 2 coord, 3 rgb colors interleaved buffer
-            verts.push(pixel.x, pixel.y, 0, 0.5, 0.6);
+            verts.push(pixel.x, pixel.y, 0, 0.5, 0.6);            
         });
+        
 
-        var numPoints = data.length ;
+        var numPoints = geoData.length ;            
 
         var vertBuffer = gl.createBuffer();
         var vertArray = new Float32Array(verts);
         var fsize = vertArray.BYTES_PER_ELEMENT;
 
+        
         gl.bindBuffer(gl.ARRAY_BUFFER, vertBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, vertArray, gl.STATIC_DRAW);
         gl.vertexAttribPointer(vertLoc, 2, gl.FLOAT, false,fsize*5,0);
@@ -206,6 +219,8 @@
 
 
             var pointSize = Math.max(leafletMap.getZoom() - 5.0, 50/Math.max(5.0, numPoints));// * 5 / Math.min(5, numPoints - 2);
+//            alert(pointSize);
+//            pointSize =100;
             gl.vertexAttrib1f(gl.aPointSize, pointSize);
 
             // -- set base matrix to translate canvas pixel coordinates -> webgl coordinates
@@ -261,7 +276,7 @@
             var pi_4 = Math.PI * 4;
             var sinLatitude = Math.sin(latitude * pi_180);
             var pixelY = (0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (pi_4)) * 256;
-            var pixelX = ((longitude + 180) / 360) * 256;
+            var pixelX = ((longitude) / 360) * 256;
 
             var pixel = { x: pixelX, y: pixelY };
 
@@ -288,6 +303,9 @@
             matrix[6] *= scaleY;
             matrix[7] *= scaleY;
         }
+            
+    });
+        
 
 
     </script>
