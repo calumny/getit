@@ -9,7 +9,7 @@
             height: 100%;
             padding: 0;
             margin: 0;
-            background: rgb(14, 21, 30);
+            background: rgb(123, 31, 162);
             height: 100%;
         }
         
@@ -21,7 +21,7 @@
             position: absolute;
             height: 100%;
             width: 100%;
-            background-color: #333;
+            background-color: #4e0079;
         }
     </style>
 </head>
@@ -172,8 +172,7 @@
             var leafletMap = L.map('map').setView([49.19, 16.60], 11);
 
 //            L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(leafletMap);
-            L.tileLayer("http://{s}.sm.mapstack.stamen.com/((toner-lite,$fff[difference],$fff[@10]),$0098d7[screen@p],$00c0fa[difference@p],(mapbox-water,$002d23[source-in])[screen])/{z}/{x}/{y}.png").addTo(leafletMap);
-
+            L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],toner-lite[soft-light],$ff5252[difference@p],$ff0000[hsl-saturation@p])/{z}/{x}/{y}.png").addTo(leafletMap);
 
             var svg = d3.select(leafletMap.getPanes().overlayPane).append("svg");
             var g = svg.append("g").attr("class", "leaflet-zoom-hide");
@@ -209,7 +208,7 @@
 
             function redrawSubset(subset) {
 //                path.pointRadius(3);// * scale);
-                var pointSize = Math.max(leafletMap.getZoom() - 6.0, 50/Math.max(5.0, numPoints), 0.6);// * 5 / Math.min(5, numPoints - 2);
+                var pointSize = Math.max(leafletMap.getZoom() - 6.0, 60/Math.max(5.0, numPoints), 0.6);// * 5 / Math.min(5, numPoints - 2);
                 path.pointRadius(pointSize);
 
 
