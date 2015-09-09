@@ -14,14 +14,14 @@
         }
         
         path {
-            fill: #0088aa;   
+            fill: #009688;   
         }
 
         #map {
             position: absolute;
             height: 100%;
             width: 100%;
-            background-color: #4e0079;
+            background-color: #7b1fa2;
         }
     </style>
 </head>
@@ -35,6 +35,32 @@
 
 
     <script>
+    var Environment = {
+        //mobile or desktop compatible event name, to be used with '.on' function
+        TOUCH_DOWN_EVENT_NAME: 'mousedown touchstart',
+        TOUCH_UP_EVENT_NAME: 'mouseup touchend',
+        TOUCH_MOVE_EVENT_NAME: 'mousemove touchmove',
+        TOUCH_DOUBLE_TAB_EVENT_NAME: 'dblclick dbltap',
+
+        isAndroid: function() {
+            return navigator.userAgent.match(/Android/i);
+        },
+        isBlackBerry: function() {
+            return navigator.userAgent.match(/BlackBerry/i);
+        },
+        isIOS: function() {
+            return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        },
+        isOpera: function() {
+            return navigator.userAgent.match(/Opera Mini/i);
+        },
+        isWindows: function() {
+            return navigator.userAgent.match(/IEMobile/i);
+        },
+        isMobile: function() {
+            return (Environment.isAndroid() || Environment.isBlackBerry() || Environment.isIOS() || Environment.isOpera() || Environment.isWindows());
+        }
+    };
         
         
 //        var cars = d3.csv("cars.csv")
@@ -106,6 +132,7 @@
                         if (subPixel && subPts && subPts.length > 0) {
 
                             subPts[0].group = subPts.length;
+//                            alert(subPts.length);
                             pts.push(subPts[0]); // add only one todo calculate intensity
                             counter += subPts.length - 1;
                             subPts = [];
@@ -130,6 +157,18 @@
                     return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
                 });
                 console.log(" Number of removed  points: " + counter);
+                var newPts = [];
+                if (Environment.isMobile() && pts.length > 5000) {
+                    for (var i = 0; i < 5000; i++){
+                        selectedPts = newPts.length + 1;
+                        index = Math.floor(Math.random()*(pts.length - selectedPts));
+                        pt = pts[index];
+                        newPts.push(pt);
+                        pts[index] = pts[pts.length - selectedPts];
+                        pts[pts.length - selectedPts] = pt;
+                    }
+                    pts = newPts;
+                }
                 return pts;
 
             }
