@@ -7,6 +7,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+from push_notifications.models import GCMDevice
 
 # Create your models here.
 
@@ -19,8 +20,10 @@ class Player(models.Model):
     parent = models.ForeignKey('self', related_name='child', blank=True, null=True)
     lat = models.FloatField(null = True, blank = True)
     lon = models.FloatField(null = True, blank = True)
-    generation = models.IntegerField(null = True, blank = True)
-    
+    generation = models.IntegerField(default = 0)
+    gcmdevice = models.ForeignKey(GCMDevice, blank = True, null = True)
+    descendants = models.IntegerField(default = 0)
+
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
