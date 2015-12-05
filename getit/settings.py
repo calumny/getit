@@ -64,9 +64,15 @@ INSTALLED_APPS = (
     'rest_auth',
     'rest_auth.registration',
     'players',
+    'push_notifications',
     'map',
     'api',
 )
+
+PUSH_NOTIFICATIONS_SETTINGS = {
+	"GCM_API_KEY" : "AIzaSyAdE_Yv---XaPlxECxy9Xk2wTpFEqIv4ZM",
+}
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
