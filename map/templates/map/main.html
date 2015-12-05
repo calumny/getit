@@ -11,7 +11,21 @@
             margin: 0;
             background: rgb(123, 31, 162);
             height: 100%;
+            position: relative;
+            
         }
+        
+        .axis text {
+  font: 10px sans-serif;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
         
         path {
             fill: #009688;   
@@ -23,18 +37,52 @@
             width: 100%;
             background-color: #7b1fa2;
         }
+        
+        #slider {
+            width: 90%;
+            margin-left: 5%;
+            margin-right: 5%;
+            margin-bottom: 20px;
+            fill: #FF5252;
+        }
+        
+        
+
+/*        #timeline {
+            position: absolute;
+//            height: 100%;
+            width: 100%;
+            background-color: #7b1fa2;
+        }*/
     </style>
 </head>
 <body>
     <div id="map"></div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
     <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
     <script src="http://www.sumbera.com/gist/js/leaflet/canvas/L.CanvasOverlay.js"></script>
     <script src="http://www.sumbera.com/gist/86T.json" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/static/d3.slider.css" media="screen" />
+    <script src="/static/d3.slider.js"></script>
 
-
+    <div id="slider"></div>
     <script>
+        
+        function timeToSeconds(time) {
+            time = time.split(/:/);
+            var newTime = parseInt(time[0]*60) + parseInt(time[1]);
+            return newTime;
+        }
+        
+        var date = new Date();
+        var currentTime = date.getMinutes() + 60 * date.getSeconds();
+
+    var slider = d3.slider().axis(true).min(0).max(currentTime).step(60);
+        
+    d3.select('#slider').call(slider);
+
     var Environment = {
         //mobile or desktop compatible event name, to be used with '.on' function
         TOUCH_DOWN_EVENT_NAME: 'mousedown touchstart',
@@ -61,7 +109,21 @@
             return (Environment.isAndroid() || Environment.isBlackBerry() || Environment.isIOS() || Environment.isOpera() || Environment.isWindows());
         }
     };
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? 0 : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
         
+            var cscale = d3.scale.linear().domain([1, 3]).range(["#ff0000", "#ff6a00", "#ffd800", "#b6ff00", "#00ffff", "#0094ff"]);//"#00FF00","#FFA500"
+            var leafletMap = L.map('map').setView([getParameterByName('lat'), getParameterByName('lon')], 11);
+
+//            L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(leafletMap);
+            L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],toner-lite[soft-light],$ff5252[difference@p],$ff0000[hsl-saturation@p])/{z}/{x}/{y}.png").addTo(leafletMap);
+
+            var svg = d3.select(leafletMap.getPanes().overlayPane).append("svg");
+            var g = svg.append("g").attr("class", "leaflet-zoom-hide");
         
 //        var cars = d3.csv("cars.csv")
 //    .get(function(error, rows) { console.log(rows); });
@@ -75,15 +137,14 @@
             function reformat(array) {
                 var data = [];
                 array.map(function (d, i) {
-
                     data.push({
                         id: i,
                         type: "Feature",
                         geometry: {
                             coordinates: [+d.longitude, +d.latitude],
                             type: "Point"
-                        }
-                       
+                        },
+                        time: d.time                     
 
                     });
                 });
@@ -207,14 +268,6 @@
             MercatorYofLatitude = function (lat) {
                 return (Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180)) * 20037508.34 / 180;
             }
-            var cscale = d3.scale.linear().domain([1, 3]).range(["#ff0000", "#ff6a00", "#ffd800", "#b6ff00", "#00ffff", "#0094ff"]);//"#00FF00","#FFA500"
-            var leafletMap = L.map('map').setView([49.19, 16.60], 11);
-
-//            L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(leafletMap);
-            L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],toner-lite[soft-light],$ff5252[difference@p],$ff0000[hsl-saturation@p])/{z}/{x}/{y}.png").addTo(leafletMap);
-
-            var svg = d3.select(leafletMap.getPanes().overlayPane).append("svg");
-            var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 
             // Use Leaflet to implement a D3 geometric transformation.
@@ -275,7 +328,9 @@
 
                 var points = g.selectAll("path")
                               .data(subset, function (d) {
-                                  return d.id;
+                                  if (d.time < slider.value()) {
+                                      return d.id;
+                                  }
                               });
                 points.enter().append("path");
                 points.exit().remove();
@@ -286,19 +341,32 @@
                         return (d.group * 0.1) + 0.2;
                     }
                 });
-
+//                d3.select("#slider").selectAll("text").attr("fill", "#FF5252");
 
 //                console.log("updated at  " + new Date().setTime(new Date().getTime() - start.getTime()) + " ms ");
 
             }
+            var subset;
             function mapmove(e) {
                 var mapBounds = leafletMap.getBounds();
-                var subset = search(qtree, mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(), mapBounds.getNorth());
+                subset = search(qtree, mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(), mapBounds.getNorth());
                 console.log("subset: " + subset.length);
 
                 redrawSubset(subset);
 
             }
+                slider.on("slide", function(evt, value) {
+                    var points = g.selectAll("path")
+                                  .data(subset, function (d) {
+                                      if (d.time < slider.value()) {
+                                          return d.id;
+                                      }
+                                  });
+                    points.enter().append("path");
+                    points.exit().remove();
+                    points.attr("d", path);
+                });
+
 
         });
 
