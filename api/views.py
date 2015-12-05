@@ -26,7 +26,7 @@ from django.contrib.auth.models import User
 
 from players.models import Player
 
-from push_notifications.models import GCMDevice
+from push_notifications.models import GCMDevice, APNSDevice
 
 #from gcm.signals import device_registered
 
@@ -81,6 +81,22 @@ def get_generations(request):
         generations_list = add_generation([player], 0, generations_list)
         return JSONResponse(generations_list)
     return JSONResponse([])
+
+@api_view(['POST'])
+def confirm_location(request):
+    if request.user.is_authenticated():
+	user = request.user
+	player = Player.objects.get(user = user)
+	if player.has_it and player.lat is None and player.lon is None:
+	    player.lat = request.data['lat']
+	    player.lon = request.data['lon']
+#	    f = open('lat_lon.txt', 'w')
+#	    f.write("location")
+#	    f.write(request.data['lat'])
+#	    f.write(request.data['lon'])
+	    player.save()
+	    return JSONResponse(True)
+    return JSONResponse(False)
 
 @api_view(['POST'])    
 def give_it(request):
@@ -183,6 +199,19 @@ def set_gcm_token(request):
 	player.save() 
 	return JSONResponse(True)
     return JSONResponse(False)        
+
+@api_view(['POST'])
+def set_apns_token(request):
+    if request.user.is_authenticated():
+        user = request.user
+        player = Player.objects.get(user = user)
+        apnsdevice = APNSDevice.objects.create(registration_id = request.data['key'])
+        apnsdevice.save()
+        player.apnsdevice = apnsdevice
+        player.save()
+        return JSONResponse(True)
+    return JSONResponse(False)
+
         
 @api_view(['POST'])
 def get_token(request):

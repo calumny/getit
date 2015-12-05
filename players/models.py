@@ -7,7 +7,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
-from push_notifications.models import GCMDevice
+from push_notifications.models import GCMDevice, APNSDevice
 
 # Create your models here.
 
@@ -22,6 +22,7 @@ class Player(models.Model):
     lon = models.FloatField(null = True, blank = True)
     generation = models.IntegerField(default = 0)
     gcmdevice = models.ForeignKey(GCMDevice, blank = True, null = True)
+    apnsdevice = models.ForeignKey(APNSDevice, blank = True, null = True)
     descendants = models.IntegerField(default = 0)
 
 
