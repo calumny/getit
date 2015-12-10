@@ -12,7 +12,7 @@
             background: rgb(123, 31, 162);
             height: 100%;
             position: relative;
-            
+	    overflow: hidden;            
         }
         
         .axis text {
@@ -29,13 +29,20 @@
         
         path {
             fill: #009688;   
+//	    fill: #FF5252;
+//	    fill: #3F51B5;
         }
+
+	path:hover {
+	    fill:#FF5252;
+	}
 
         #map {
             position: absolute;
             height: 100%;
             width: 100%;
             background-color: #7b1fa2;
+	    cursor: default;
         }
         
         #slider {
@@ -61,25 +68,18 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+
     <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
-    <script src="http://www.sumbera.com/gist/js/leaflet/canvas/L.CanvasOverlay.js"></script>
+ <script src="/static/L.CanvasOverlay.js"></script>
+    <!--script src="http://www.sumbera.com/gist/js/leaflet/canvas/L.CanvasOverlay.js"></script-->
     <script src="http://www.sumbera.com/gist/86T.json" charset="utf-8"></script>
     <link rel="stylesheet" type="text/css" href="/static/d3.slider.css" media="screen" />
     <script src="/static/d3.slider.js"></script>
 
     <div id="slider"></div>
     <script>
-        
-        function timeToSeconds(time) {
-            time = time.split(/:/);
-            var newTime = parseInt(time[0]*60) + parseInt(time[1]);
-            return newTime;
-        }
-        
-        var date = new Date();
-        var currentTime = date.getMinutes() + 60 * date.getSeconds();
 
-    var slider = d3.slider().axis(true).min(0).max(currentTime).step(60);
+    var slider = d3.slider().axis(true).min(0).max(0).step(60);
         
     d3.select('#slider').call(slider);
 
@@ -113,25 +113,34 @@ function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);
-    return results === null ? 0 : decodeURIComponent(results[1].replace(/\+/g, " "));
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
-        
+
+        var lat = getParameterByName('lat');
+        lat = (lat == "") ? "42.3601" : lat;
+        var lon = getParameterByName('lon');
+        lon = (lon == "") ? "-71.0589" : lon;        
+
+function setPosition(position) {
+	lat = position.coords.latitude;	
+	lon = position.coords.longitude;
+	leafletMap.setView([lat, lon], 16);
+}
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(setPosition);
+    }
+
             var cscale = d3.scale.linear().domain([1, 3]).range(["#ff0000", "#ff6a00", "#ffd800", "#b6ff00", "#00ffff", "#0094ff"]);//"#00FF00","#FFA500"
-            var leafletMap = L.map('map').setView([getParameterByName('lat'), getParameterByName('lon')], 11);
+            var leafletMap = L.map('map').setView([lat, lon], 16);
 
+            leafletMap.setZoom(16);
 //            L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(leafletMap);
-            L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],toner-lite[soft-light],$ff5252[difference@p],$ff0000[hsl-saturation@p])/{z}/{x}/{y}.png").addTo(leafletMap);
-
-            var svg = d3.select(leafletMap.getPanes().overlayPane).append("svg");
-            var g = svg.append("g").attr("class", "leaflet-zoom-hide");
-        
-//        var cars = d3.csv("cars.csv")
-//    .get(function(error, rows) { console.log(rows); });
-        
-        //L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-background,$fff[difference],$fff[@23],$fff[hsl-saturation@20],toner-lines[destination-in])/{z}/{x}/{y}.png")
-//        L.tileLayer("http://{s}.sm.mapstack.stamen.com/((toner-lite,$fff[difference],$fff[@10]),$0098d7[screen@p],$00c0fa[difference@p],(mapbox-water,$002d23[source-in])[screen])/{z}/{x}/{y}.png")
-  //          .addTo(leafletMap);
-        
+            L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],toner-lite[soft-light],$ff5252[difference@p],$ff0000[hsl-saturation@p])/{z}/{x}/{y}.png", {
+	noWrap:true
+}).addTo(leafletMap);
+       
+ 
         d3.csv('/static/testDataCZ.csv', function (error, incidents) {
 
             function reformat(array) {
@@ -151,12 +160,8 @@ function getParameterByName(name) {
                 return data;
             }
             var geoData = { type: "FeatureCollection", features: reformat(incidents) };
-            
+//         console.log(geoData);   
             var numPoints = incidents.length;
-            
-            
-
-
 
             var qtree = d3.geom.quadtree(geoData.features.map(function (data, i) {
                 return {
@@ -164,9 +169,7 @@ function getParameterByName(name) {
                     y: data.geometry.coordinates[1],
                     all: data
                 };
-            }
-                                                         )
-                                                  );
+            }));
 
 
             // Find the nodes within the specified rectangle.
@@ -219,7 +222,7 @@ function getParameterByName(name) {
                 });
                 console.log(" Number of removed  points: " + counter);
                 var newPts = [];
-                if (Environment.isMobile() && pts.length > 5000) {
+/*                if (Environment.isMobile() && pts.length > 5000) {
                     for (var i = 0; i < 5000; i++){
                         selectedPts = newPts.length + 1;
                         index = Math.floor(Math.random()*(pts.length - selectedPts));
@@ -229,7 +232,7 @@ function getParameterByName(name) {
                         pts[pts.length - selectedPts] = pt;
                     }
                     pts = newPts;
-                }
+                }*/
                 return pts;
 
             }
@@ -269,24 +272,61 @@ function getParameterByName(name) {
                 return (Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180)) * 20037508.34 / 180;
             }
 
-
-            // Use Leaflet to implement a D3 geometric transformation.
-            function projectPoint(x, y) {
-                var point = leafletMap.latLngToLayerPoint(new L.LatLng(y, x));
-                this.stream.point(point.x, point.y);
-            }
-
-            var transform = d3.geo.transform({ point: projectPoint });
-            var path = d3.geo.path().projection(transform);
-
-
             updateNodes(qtree);
+	
+        var canvasOverlay = L.canvasOverlay()
+            .drawing(drawingOnCanvas)
+            .addTo(leafletMap);
 
-            leafletMap.on('moveend', mapmove);
+//alert(leafletMap.canvasOverlay());
 
-            mapmove();
+function redrawInBounds(x0, y0, x1, y1) {
 
+	    var mapZoom = leafletMap.getZoom();
+            subset = search(qtree, x0, y0, x1, y1);
+//console.log(canvasOverlay._map.layerPointToLatLng([prevDot.x, prevDot.y]));
+//console.log(x0, y0, x1, y1);
+//console.log(subset.length);
+            var ctx = canvasOverlay.canvas().getContext('2d');
+            for (var i = 0; i < subset.length; i++) {
+                var d = subset[i];
+//		console.log(d);
+		newDot = canvasOverlay._map.latLngToContainerPoint([d.geometry.coordinates[1], d.geometry.coordinates[0]]);
+		ctx.fillStyle = "#009688";
+                ctx.beginPath();
+//                console.log("NEW DOT", newDot);
+		ctx.arc(newDot.x, newDot.y,  Math.min(5*mapZoom/20, 5), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+            }
+}
 
+var prevDot = {x:-1, y:-1};
+
+       leafletMap.on('mousemove', function(e) {
+                var lon = e.latlng.lng;
+                var lat = e.latlng.lat;
+                var pt = qtree.find([lon, lat]);
+//	console.log(pt);
+//         alert(qtree.find([lon, lat]));
+//console.log(prevDot);
+            var ctx = canvasOverlay.canvas().getContext('2d');
+//            ctx.fillStyle = "rgba(255,116,0, 1)";
+            selDot = canvasOverlay._map.latLngToContainerPoint([pt.all.geometry.coordinates[1], pt.all.geometry.coordinates[0]]);
+            ctx.clearRect(prevDot.x - 5, prevDot.y - 5, 10, 10);
+	    refillTopRight = canvasOverlay._map.containerPointToLatLng([prevDot.x-6, prevDot.y-6]);
+            refillBottomLeft = canvasOverlay._map.containerPointToLatLng([prevDot.x+6, prevDot.y+6]);
+	    redrawInBounds(refillTopRight.lng, refillBottomLeft.lat, refillBottomLeft.lng, refillTopRight.lat); 
+//	   console.log("DOT", dot); 
+	    prevDot = {x:selDot.x, y:selDot.y};
+
+            ctx.fillStyle = "rgba(255,116,0, 1)";
+            ctx.beginPath();
+            ctx.arc(selDot.x, selDot.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+
+        });
 
 
             function getZoomScale() {
@@ -298,74 +338,38 @@ function getParameterByName(name) {
 
             }
 
-            function redrawSubset(subset) {
-//                path.pointRadius(3);// * scale);
-                var pointSize = Math.max(leafletMap.getZoom() - 6.0, 60/Math.max(5.0, numPoints), 0.6);// * 5 / Math.min(5, numPoints - 2);
-                path.pointRadius(pointSize);
-
-
-                var bounds = path.bounds({ type: "FeatureCollection", features: subset });
-                var topLeft = bounds[0];
-                topLeft[0] = topLeft[0] - 20;
-                topLeft[1] = topLeft[1] - 20;
-                var bottomRight = bounds[1];
-                bottomRight[0] = bottomRight[0] + 20;
-                bottomRight[1] = bottomRight[1] + 20;
-
-
-                svg.attr("width", bottomRight[0] - topLeft[0])
-                  .attr("height", bottomRight[1] - topLeft[1])
-                  .style("left", topLeft[0] + "px")
-                  .style("top", topLeft[1] + "px");
-                
-//                alert(svg.attr());
-
-
-                g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
 
                 var start = new Date();
 
-
-                var points = g.selectAll("path")
-                              .data(subset, function (d) {
-                                  if (d.time < slider.value()) {
-                                      return d.id;
-                                  }
-                              });
-                points.enter().append("path");
-                points.exit().remove();
-                points.attr("d", path);
-
-                points.style("fill-opacity", function (d) {
-                    if (d.group) {
-                        return (d.group * 0.1) + 0.2;
-                    }
-                });
-//                d3.select("#slider").selectAll("text").attr("fill", "#FF5252");
-
-//                console.log("updated at  " + new Date().setTime(new Date().getTime() - start.getTime()) + " ms ");
-
-            }
+//            }
             var subset;
-            function mapmove(e) {
+
+	
+
+        function drawingOnCanvas(canvasOverlay, params) {
+//console.log(params);
+		var mapZoom = leafletMap.getZoom();
                 var mapBounds = leafletMap.getBounds();
                 subset = search(qtree, mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(), mapBounds.getNorth());
-                console.log("subset: " + subset.length);
-
-                redrawSubset(subset);
-
+console.log("MAP", mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(), mapBounds.getNorth());
+            var ctx = params.canvas.getContext('2d');
+            ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
+//            ctx.fillStyle = "rgba(255,116,0, 0.2)";
+	ctx.fillStyle = "#009688";
+            for (var i = 0; i < subset.length; i++) {
+                var d = subset[i];
+//		console.log(d);
+//                if (params.bounds.contains([d[0], d[1]])) {
+                    dot = canvasOverlay._map.latLngToContainerPoint([d.geometry.coordinates[1], d.geometry.coordinates[0]]);
+//dot =projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]);
+//		console.log(dot);
+                    ctx.beginPath();
+                    ctx.arc(dot.x, dot.y, Math.min(5*mapZoom/20, 5), 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.closePath();
+//                }
             }
-                slider.on("slide", function(evt, value) {
-                    var points = g.selectAll("path")
-                                  .data(subset, function (d) {
-                                      if (d.time < slider.value()) {
-                                          return d.id;
-                                      }
-                                  });
-                    points.enter().append("path");
-                    points.exit().remove();
-                    points.attr("d", path);
-                });
+        };
 
 
         });
