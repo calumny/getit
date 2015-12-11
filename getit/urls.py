@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
     url(r'^api/', include('api.urls', namespace="api")),
     url(r'^map/', include('map.urls', namespace="map")),
+    url(r'^launch/', include('launch.urls', namespace="launch")),
     url(r'^$', include('map.urls', namespace="map")),
 )

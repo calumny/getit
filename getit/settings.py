@@ -66,11 +66,13 @@ INSTALLED_APPS = (
     'players',
     'push_notifications',
     'map',
+    'launch',
     'api',
 )
 
 PUSH_NOTIFICATIONS_SETTINGS = {
 	"GCM_API_KEY" : "AIzaSyAdE_Yv---XaPlxECxy9Xk2wTpFEqIv4ZM",
+	"APNS_CERTIFICATE" : "/home/sites/getit/Certificates.pem",
 }
 
 
