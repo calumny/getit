@@ -65,7 +65,7 @@ def find_furthest_descendant(player, current_generation, current_furthest_dist):
         return current_furthest_dist
     else:
         for child in next_generation:
-            dist = haversinedistance(player.lat, child.lat, player.lon, child.lon)
+            dist = haversinedistance(player.gave_it_lat, child.lat, player.gave_it_lon, child.lon)
             if dist > current_furthest_dist:
                 player.furthest_descendant = child
                 player.save()
@@ -136,8 +136,8 @@ def give_it(request):
         player = Player.objects.get(user = user)
         if player.has_it:
             player.last_gave_it = timezone.now()
-            player.lat = request.data['lat']
-            player.lon = request.data['lon']
+            player.gave_it_lat = request.data['lat']
+            player.gave_it_lon = request.data['lon']
             player.save()
             return JSONResponse(True)
     else:
@@ -188,8 +188,8 @@ def get_it(request):
 
 
 	    for giver in recently_gave:
-		deltaLat = math.radians(abs(giver.lat - lat))
-		deltaLon = math.radians(abs(giver.lon - lon))
+		deltaLat = math.radians(abs(giver.gave_it_lat - lat))
+		deltaLon = math.radians(abs(giver.gave_it_lon - lon))
 		print(deltaLat)
 		print(deltaLon)
 		x = deltaLon * math.cos(math.radians(lat))
