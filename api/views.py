@@ -72,7 +72,7 @@ def find_furthest_descendant(player, current_generation, current_furthest_dist):
                 return find_furthest_descendant(player, next_generation, dist)
 
 @api_view(['GET'])
-def get_furthest_descendant:    
+def get_furthest_descendant(request):    
     if request.user.is_authenticated():
         user = request.user
         player = Player.objects.get(user = user)
