@@ -35,11 +35,27 @@ class Player(models.Model):
     gave_it_lat = models.FloatField(null = True, blank = True)
     gave_it_lon = models.FloatField(null = True, blank = True)
     generation = models.IntegerField(default = 0)
-    gcmdevice = OneToOneOrNoneField(GCMDevice, blank=True, null=True)
-    apnsdevice = OneToOneOrNoneField(APNSDevice, blank=True, null=True)
+    gcmdevice = models.OneToOneField(GCMDevice, blank=True, null=True)
+    apnsdevice = models.OneToOneField(APNSDevice, blank=True, null=True)
     descendants = models.IntegerField(default = 0)
 
+class Round(models.Model):
+    number = models.IntegerField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField(null = True, blank = True)
+    current = models.BooleanField (default = False)
 
+class Transfer(models.Model):
+    from_player = models.ForeignKey(Player, related_name='from_transfer')
+    to_player = models.ForeignKey(Player, related_name='to_transfer')
+    date = models.DateTimeField()
+    distance = models.FloatField()
+    from_lat =  models.FloatField(null = True, blank = True)
+    from_lon = models.FloatField(null = True, blank = True)
+    to_lat =  models.FloatField(null = True, blank = True)
+    to_lon = models.FloatField(null = True, blank = True)
+    play_round = models.ForeignKey(Round)
+    
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:

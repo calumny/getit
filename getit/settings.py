@@ -90,15 +90,30 @@ ROOT_URLCONF = 'getit.urls'
 
 WSGI_APPLICATION = 'getit.wsgi.application'
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'm!p!bkseg555l+%ut6#+&$%h0gbhmd=adx_9o(on78!bb-g@t5'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
 DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#    }
+
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+        'NAME' : 'getit',
+        'USER' : 'cstokes',
+        'PASSWORD' : 'WiddleSticks',
+        'HOST' : 'get-it-db.cctcnisl5qyz.us-east-1.rds.amazonaws.com',
+        'PORT' : '5432',
+
     }
+
 }
 
 # Internationalization

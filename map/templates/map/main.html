@@ -9,7 +9,7 @@
             height: 100%;
             padding: 0;
             margin: 0;
-            background: rgb(123, 31, 162);
+	    background-color: #7B1FA2;
             height: 100%;
             position: relative;
 	    overflow: hidden;            
@@ -45,9 +45,13 @@
             position: absolute;
             height: 100%;
             width: 100%;
-            background-color: #7b1fa2;
+//            background-color: #7b1fa2;
 	    cursor: default;
         }
+
+	#map.gotIt {
+		background-color: #303f9f;
+	}
         
         #slider {
             width: 90%;
@@ -55,9 +59,11 @@
             margin-right: 5%;
             margin-bottom: 20px;
             fill: #FF5252;
-        }
-        
-        
+        }        
+ 
+	#slider.gotIt {
+	    fill: #009688;
+	}       
 
 /*        #timeline {
             position: absolute;
@@ -66,6 +72,10 @@
             background-color: #7b1fa2;
         }*/
     </style>
+<script>
+if (window.location.search.indexOf('?got_it=true') === 0)
+    document.write('<style>html, body {background-color:#303F9F;}</style>');
+</script>
 </head>
 <body>
     <div id="map"></div>
@@ -127,6 +137,15 @@ function getParameterByName(name) {
         var lon = getParameterByName('lon');
         lon = (lon == "") ? "-71.0589" : lon;        
 
+	var got_it = getParameterByName('got_it');
+	got_it = (got_it == "true");
+
+	if (got_it) {
+	    d3.select("#map").classed("gotIt", true);
+	    d3.select("#slider").classed("gotIt", true);
+	    //document.getElementById("map").style.backgroundColor = "#303f9f";
+	}
+
 function setPosition(position) {
 	lat = position.coords.latitude;	
 	lon = position.coords.longitude;
@@ -150,8 +169,11 @@ function setPosition(position) {
 
             leafletMap.setZoom(16);
 //            L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(leafletMap);
+	if (got_it) {
+            L.tileLayer("http://{s}.sm.mapstack.stamen.com/($303f9f[@p],(toner-lite,$fff[difference])[exclusion],(toner-hybrid,$009688[source-in])[hsl-color])/{z}/{x}/{y}.png").addTo(leafletMap);
+	} else {
             L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],toner-lite[soft-light],$ff5252[difference@p],$ff0000[hsl-saturation@p])/{z}/{x}/{y}.png").addTo(leafletMap);
-       
+       }
  
         d3.csv('/static/testDataCZ.csv', function (error, incidents) {
 
@@ -380,7 +402,6 @@ function nearest(root, x, y, x0, y0, x3, y3) {
 //alert(leafletMap.canvasOverlay());
 
 function redrawInBounds(x0, y0, x1, y1) {
-
 	    var mapZoom = leafletMap.getZoom();
             subset = search(qtree, x0, y0, x1, y1);
 //console.log(canvasOverlay._map.layerPointToLatLng([prevDot.x, prevDot.y]));
@@ -392,7 +413,7 @@ function redrawInBounds(x0, y0, x1, y1) {
 //		console.log(d);
 		newDot = canvasOverlay._map.latLngToContainerPoint([d.geometry.coordinates[1], d.geometry.coordinates[0]]);
 		ctx.fillStyle = "#009688";
-                ctx.beginPath();
+	        ctx.beginPath();
 //                console.log("NEW DOT", newDot);
 		ctx.arc(newDot.x, newDot.y,  Math.min(5*mapZoom/20, 5), 0, Math.PI * 2);
                 ctx.fill();
@@ -426,8 +447,13 @@ function interpolateColor (color1, color2, factor) {
 function drawParents(ctx) {
 //console.log(parents);
 	if (parents.length > 0) {
-        	ctx.fillStyle = "#FF5252";
-       		ctx.strokeStyle = "#FF5252";
+		if (got_it) {
+		    ctx.fillStyle = "#009688";
+                    ctx.strokeStyle = "#009688";
+		} else {
+        	    ctx.fillStyle = "#FF5252";
+       		    ctx.strokeStyle = "#FF5252";
+		}
 		ctx.lineWidth = 3;
 		ctx.beginPath();
 		var firstCoord = parents[0];
@@ -539,8 +565,11 @@ var prevDot = {x:-1, y:-1};
 //	    redrawInBounds(refillTopRight.lng, refillBottomLeft.lat, refillBottomLeft.lng, refillTopRight.lat); 
 //	   console.log("DOT", selDot); 
 	    prevDot = {x:selDot.x, y:selDot.y};
-
-            ctx.fillStyle = "#FF5252";
+	    if (got_it) {
+		ctx.fillStyle = "#009688";
+	    } else {
+        	ctx.fillStyle = "#FF5252";
+	    }
             ctx.beginPath();
             ctx.arc(selDot.x, selDot.y, 5, 0, Math.PI * 2);
 //            ctx.arc(parDot.x, parDot.y, 5, 0, Math.PI * 2);
@@ -577,7 +606,12 @@ var prevDot = {x:-1, y:-1};
             var ctx = params.canvas.getContext('2d');
             ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
 //            ctx.fillStyle = "rgba(255,116,0, 0.2)";
-	ctx.fillStyle = "#009688";
+	if (got_it) {
+	    ctx.fillStyle = "#9C27B0";
+	} else {
+	    ctx.fillStyle = "#009688";
+	}
+
  	var pointSize = Math.min(5, Math.max(leafletMap.getZoom() - 6.0, 8/Math.log(subset.length), 0.6));
 var vertices = [];
             for (var i = 0; i < subset.length; i++) {

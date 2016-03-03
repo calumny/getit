@@ -58,7 +58,7 @@ return function module() {
       }
 
       // Start value
-      value = value || scale.domain()[0];
+      value = value || scale.domain()[1];
 
       // DIV container
       var div = d3.select(this).classed("d3-slider d3-slider-" + orientation, true);

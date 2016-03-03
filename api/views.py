@@ -5,6 +5,7 @@ import json
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.forms import UserCreationForm
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
@@ -15,7 +16,7 @@ from rest_framework.decorators import api_view
 from django.utils import timezone
 import math
 from django.dispatch import receiver
-
+from django.db.models import Sum
 
 from rest_framework.authtoken.models import Token
 
@@ -25,7 +26,7 @@ from django.contrib.auth import authenticate, login, logout, get_user
 
 from django.contrib.auth.models import User
 
-from players.models import Player
+from players.models import Player, Round, Transfer
 
 from push_notifications.models import GCMDevice, APNSDevice
 
@@ -113,19 +114,21 @@ def get_generations(request):
         return HttpResponse('Unauthorized', status=401)
 
 @api_view(['POST'])
-def confirm_location(request):
+def confirm_location(request): 
     if request.user.is_authenticated():
 	user = request.user
 	player = Player.objects.get(user = user)
-	if player.has_it and player.lat is None and player.lon is None:
-	    player.lat = request.data['lat']
-	    player.lon = request.data['lon']
+#	if player.has_it and (player.lat is None or player.lon is None):
+        player.lat = request.data['lat']
+        player.lon = request.data['lon']
 #	    f = open('lat_lon.txt', 'w')
 #	    f.write("location")
 #	    f.write(request.data['lat'])
 #	    f.write(request.data['lon'])
-	    player.save()
-	    return JSONResponse(True)
+        player.save()
+        return JSONResponse(True)
+#        else:
+#            return JSONResponse(False)
     else:
         return HttpResponse('Unauthorized', status=401)
 
@@ -154,6 +157,30 @@ def did_i_give_it(request):
         return JSONResponse(children)
     else:
         return HttpResponse('Unauthorized', status=401)
+
+@api_view(['GET'])
+def countdown(request):
+    player = Player.objects.filter(has_it=True).order_by('last_got_it').last()
+    last_got_it = player.last_got_it
+    reset_date = last_got_it + timedelta(days=14)    
+    return JSONResponse(reset_date)
+
+@api_view(['GET'])
+def get_stats(request):
+    player = Player.objects.filter(has_it=True).order_by('last_got_it').last()
+    last_got_it = player.last_got_it
+    reset_date = last_got_it + timedelta(days=14)
+    current_round = Round.objects.get(current=True)
+    has_it_count = Player.objects.filter(has_it=True).count()
+    started_with_it = Player.objects.filter(started_with_it=True).count()
+    distance = Transfer.objects.filter(play_round = current_round).aggregate(Sum('distance'))['distance__sum']
+    if distance is None:
+        distance = 0
+    time_elapsed = (timezone.now() - current_round.start_date).total_seconds()
+    mph = distance/time_elapsed * 3600
+    players_per_second = (has_it_count - started_with_it)/time_elapsed
+    stats = {"reset_date":reset_date, "has_it_count":has_it_count, "distance":distance, "mph":mph, "players_per_second":players_per_second}
+    return JSONResponse(stats)
 
 
 @api_view(['GET'])    
@@ -209,6 +236,11 @@ def get_it(request):
 		    player.has_it = True
 
 		    player.save()
+
+                    travel_dist = haversinedistance(giver.lat, player.lat, giver.lon, player.lon)
+                    play_round = Round.objects.get(current=True)
+                    transfer = Transfer.objects.create(from_player = giver, to_player = player, distance = travel_dist, date = player.last_got_it, play_round = play_round)
+
                     return JSONResponse(increment_descendants(giver))            
             return JSONResponse(False)
         else:
@@ -235,13 +267,18 @@ def set_gcm_token(request):
     if request.user.is_authenticated():
 	user = request.user
 	player = Player.objects.get(user = user)
-        gcmdevice = GCMDevice.objects.filter(registration_id = request.data['key']).first()
-        if gcmdevice is None:
-            gcmdevice = GCMDevice.objects.create(registration_id = request.data['key'])
+        try:
+            gcmdevice = GCMDevice.objects.get(registration_id = request.data['key'])
+            gcmdevice.delete()
+        except ObjectDoesNotExist:
+            pass
+        gcmdevice = GCMDevice.objects.create(registration_id = request.data['key'])
+        gcmdevice.active =  True
+        gcmdevice.player = player
 	gcmdevice.save()
-	player.gcmdevice = gcmdevice
-	player.save() 
-	return JSONResponse(True)
+        player.gcmdevice = gcmdevice
+        player.save()
+        return JSONResponse(True)
     else:
         return HttpResponse('Unauthorized', status=401)
    
@@ -251,23 +288,28 @@ def set_apns_token(request):
     if request.user.is_authenticated():
         user = request.user
         player = Player.objects.get(user = user)
-        apnsdevice = APNSDevice.objects.filter(registration_id = request.data['key']).first()
-        if apnsdevice is None:
-            apnsdevice = APNSDevice.objects.create(registration_id = request.data['key'])
+        try:
+            apnsdevice = APNSDevice.objects.get(registration_id = request.data['key'])
+            apnsdevice.delete()
+        except ObjectDoesNotExist:
+            pass
+        apnsdevice = APNSDevice.objects.create(registration_id = request.data['key'])
+        apnsdevice.active =  True
+        apnsdevice.player = player
         apnsdevice.save()
         player.apnsdevice = apnsdevice
         player.save()
         return JSONResponse(True)
     else:
         return HttpResponse('Unauthorized', status=401)
-        
+
 @api_view(['POST'])
 def get_token(request):
     hashname= hashlib.sha1(request.data['username']).hexdigest()[:30]
     try:
         user = User.objects.get(username = hashname)
     except User.DoesNotExist:
-        return HTTPResponse('No such user', status=404)
+        return HttpResponse('No such user', status=404)
     token = Token.objects.get(user = user)
     return JSONResponse({'key':token.key})
     
