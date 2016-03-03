@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
 <head>
-    <title>Many Points with  leaflet WebGL</title>
+    <title>Where'd they get it?</title>
     <meta charset="utf-8">
-
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
     <style>
         html, body {
             height: 100%;
@@ -35,6 +35,10 @@
 
 	path:hover {
 	    fill:#FF5252;
+	}
+
+	.leaflet-control-zoom {
+	    top: 20px;
 	}
 
         #map {
@@ -82,6 +86,8 @@
     var slider = d3.slider().axis(true).min(0).max(0).step(60);
         
     d3.select('#slider').call(slider);
+
+//alert(slider.value().getTime());
 
     var Environment = {
         //mobile or desktop compatible event name, to be used with '.on' function
@@ -132,13 +138,19 @@ function setPosition(position) {
     }
 
             var cscale = d3.scale.linear().domain([1, 3]).range(["#ff0000", "#ff6a00", "#ffd800", "#b6ff00", "#00ffff", "#0094ff"]);//"#00FF00","#FFA500"
-            var leafletMap = L.map('map').setView([lat, lon], 16);
+            var leafletMap = L.map('map', 
+		{
+			maxBounds: [
+        			[-89.0, -180.0],
+        			[89.0, 180.0]
+    			],
+			minZoom: 2
+
+		}).setView([lat, lon], 16);
 
             leafletMap.setZoom(16);
 //            L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(leafletMap);
-            L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],toner-lite[soft-light],$ff5252[difference@p],$ff0000[hsl-saturation@p])/{z}/{x}/{y}.png", {
-	noWrap:true
-}).addTo(leafletMap);
+            L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],toner-lite[soft-light],$ff5252[difference@p],$ff0000[hsl-saturation@p])/{z}/{x}/{y}.png").addTo(leafletMap);
        
  
         d3.csv('/static/testDataCZ.csv', function (error, incidents) {
@@ -153,8 +165,9 @@ function setPosition(position) {
                             coordinates: [+d.longitude, +d.latitude],
                             type: "Point"
                         },
-                        time: d.time                     
-
+                        time: d.time,
+			selfid: d.selfid,
+			parentid: d.parent               
                     });
                 });
                 return data;
@@ -162,6 +175,8 @@ function setPosition(position) {
             var geoData = { type: "FeatureCollection", features: reformat(incidents) };
 //         console.log(geoData);   
             var numPoints = incidents.length;
+
+	    var parents = [];
 
             var qtree = d3.geom.quadtree(geoData.features.map(function (data, i) {
                 return {
@@ -171,6 +186,84 @@ function setPosition(position) {
                 };
             }));
 
+//console.log(qtree);
+
+function getLowestTime(node) {
+	if (node.leaf) {
+		node.lowestTime = parseInt(node.point.all.time);
+		return node.lowestTime;
+	} else if (node.nodes != null && node.nodes.length > 0) {
+		var lowestTime = new Date().getTime();
+		for (subNode in node.nodes) {
+			var newTime = getLowestTime(node.nodes[subNode]);
+			if (newTime < lowestTime) {
+				lowestTime = newTime;
+			}
+		}
+		node.lowestTime = lowestTime;
+		return lowestTime;
+	} else {
+//	alert(node.depth);
+           var lowestTime = new Date().getTime();
+           node.lowestTime = lowestTime;
+	   return lowestTime;
+	}
+}
+getLowestTime(qtree);
+//console.log(qtree);
+var maxTime = slider.value().getTime();
+slider.value(maxTime);
+//console.log(slider);
+if (Environment.isMobile()) {
+	slider.on("slideend", function() { canvasOverlay._redraw();});
+} else {
+        slider.on("slide", function() { canvasOverlay._redraw();});
+}
+
+
+function nearest(root, x, y, x0, y0, x3, y3) {
+  var minDistance2 = Infinity,
+      closestPoint;
+
+  (function find(node, x1, y1, x2, y2) {
+
+    // stop searching if this cell can’t contain a closer node
+    if (node.lowestTime > slider.value() || x1 > x3 || y1 > y3 || x2 < x0 || y2 < y0) return;
+
+    // visit this point
+    if (point = node.point) {
+      var point,
+          dx = x - node.x,
+          dy = y - node.y,
+          distance2 = dx * dx + dy * dy;
+      if (distance2 < minDistance2) {
+        var distance = Math.sqrt(minDistance2 = distance2);
+        x0 = x - distance, y0 = y - distance;
+        x3 = x + distance, y3 = y + distance;
+        closestPoint = point;
+      }
+    }
+
+    // bisect the current node
+    var children = node.nodes,
+        xm = (x1 + x2) * 0.5,
+        ym = (y1 + y2) * 0.5,
+        right = x >= xm,
+        below = y >= ym;
+
+    // visit closest cell first
+    for (var i = below << 1 | right, j = i + 4; i < j; ++i) {
+      if (node = children[i & 3]) switch (i & 3) {
+        case 0: find(node, x1, y1, xm, ym); break;
+        case 1: find(node, xm, y1, x2, ym); break;
+        case 2: find(node, x1, ym, xm, y2); break;
+        case 3: find(node, xm, ym, x2, y2); break;
+      }
+    }
+  })(root, x0, y0, x3, y3);
+
+  return closestPoint;
+}
 
             // Find the nodes within the specified rectangle.
             function search(quadtree, x0, y0, x3, y3) {
@@ -178,12 +271,15 @@ function setPosition(position) {
                 var subPixel = false;
                 var subPts = [];
                 var scale = getZoomScale();
-                console.log(" scale: " + scale);
+//                console.log(" scale: " + scale);
                 var counter = 0;
                 quadtree.visit(function (node, x1, y1, x2, y2) {
                     var p = node.point;
                     var pwidth = node.width * scale;
                     var pheight = node.height * scale;
+		    if (node.lowestTime > slider.value()) {
+			return true;
+		    }		
 
                     // -- if this is too small rectangle only count the branch and set opacity
                     if ((pwidth * pheight) <= 1) {
@@ -220,7 +316,7 @@ function setPosition(position) {
                     // if quad rect is outside of the search rect do nto search in sub nodes (returns true)
                     return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
                 });
-                console.log(" Number of removed  points: " + counter);
+//                console.log(" Number of removed  points: " + counter);
                 var newPts = [];
 /*                if (Environment.isMobile() && pts.length > 5000) {
                     for (var i = 0; i < 5000; i++){
@@ -253,7 +349,7 @@ function setPosition(position) {
                     node.height = (nodeRect.top - nodeRect.bottom);
 
                     if (node.depth == 0) {
-                        console.log(" width: " + node.width + "height: " + node.height);
+//                        console.log(" width: " + node.width + "height: " + node.height);
                     }
                     nodes.push(node);
                     for (var i = 0; i < 4; i++) {
@@ -278,6 +374,9 @@ function setPosition(position) {
             .drawing(drawingOnCanvas)
             .addTo(leafletMap);
 
+//        var canvasOverlay2 = L.canvasOverlay()
+//            .addTo(leafletMap);
+
 //alert(leafletMap.canvasOverlay());
 
 function redrawInBounds(x0, y0, x1, y1) {
@@ -301,28 +400,151 @@ function redrawInBounds(x0, y0, x1, y1) {
             }
 }
 
+function h2r (hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16)
+    ] : null;
+};
+
+// Inverse of the above
+function r2h (rgb) {
+    return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
+};
+
+function interpolateColor (color1, color2, factor) {
+  if (arguments.length < 3) { factor = 0.5; }
+  var result = color1.slice();
+  for (var i=0;i<3;i++) {
+    result[i] = Math.round(result[i] + factor*(color2[i]-color1[i]));
+  }
+  return result;
+};
+
+function drawParents(ctx) {
+//console.log(parents);
+	if (parents.length > 0) {
+        	ctx.fillStyle = "#FF5252";
+       		ctx.strokeStyle = "#FF5252";
+		ctx.lineWidth = 3;
+		ctx.beginPath();
+		var firstCoord = parents[0];
+	        var firstDot = canvasOverlay._map.latLngToContainerPoint([firstCoord.geometry.coordinates[1], firstCoord.geometry.coordinates[0]]);
+		if (firstCoord.time <= slider.value()) {
+			ctx.moveTo(firstDot.x, firstDot.y);
+        		ctx.arc(firstDot.x, firstDot.y, 5, 0, Math.PI * 2);
+        		ctx.fill();
+			ctx.closePath();
+		}
+		for (var i=1; i < parents.length; i ++) {
+//			var intColor = r2h(interpolateColor(h2r("#E91E63"), h2r("#000000"), (i+1)/parents.length));
+	        	var coord = parents[i];
+      		  	var dot = canvasOverlay._map.latLngToContainerPoint([coord.geometry.coordinates[1], coord.geometry.coordinates[0]]);
+//			ctx.fillStyle = intColor;
+//			ctx.strokeStyle = intColor;
+			if (coord.time <= slider.value()) {
+	        		ctx.lineTo(dot.x, dot.y);
+  		         	ctx.stroke();
+				ctx.closePath();
+				ctx.beginPath();
+                		ctx.arc(dot.x, dot.y, 5, 0, Math.PI * 2);
+        	       		ctx.fill();
+			}
+//	                  ctx.closePath();
+	
+		}
+		ctx.closePath();
+		return true;
+	}
+	ctx.closePath();
+	return false;
+}
+
+function findParents(pt, ctx) {
+
+//            ctx.clearRect(0, 0, canvasOverlay.topCanvas().width, canvasOverlay.topCanvas().height);
+//	canvasOverlay._redraw();
+//	console.log(pt.parentid);
+	parents.push(pt);
+	if (pt.parentid <= 1) {
+
+		return drawParents(ctx);
+	}
+	for (var i=0; i < geoData.features.length; i++) {
+		d = geoData.features[i];
+		if (d.selfid == pt.parentid) {
+			return findParents(d, ctx);
+		}
+	}
+
+	return false;
+}
+
+
 var prevDot = {x:-1, y:-1};
+
+
+       leafletMap.on('click', function(e) {
+                var lon = e.latlng.lng;
+                var lat = e.latlng.lat;
+//                var pt = qtree.find([lon, lat]);
+                var pt = nearest(qtree, lon, lat, qtree, -Infinity, -Infinity, Infinity, Infinity);
+
+
+            var ctx = canvasOverlay.canvas().getContext('2d');
+
+            selDot = canvasOverlay._map.latLngToContainerPoint([pt.all.geometry.coordinates[1], pt.all.geometry.coordinates[0]]);
+      if (selDot != prevDot) {
+		parents = [];
+              canvasOverlay._redraw();
+      }
+//console.log(selDot);
+//console.log(e.containerPoint);
+	if (Math.abs(e.containerPoint.x - selDot.x) + Math.abs(e.containerPoint.y - selDot.y) < 14 ){
+		parents = [];
+        	 var parentsDone = findParents(pt.all, ctx);
+	}
+	});
+
 
        leafletMap.on('mousemove', function(e) {
                 var lon = e.latlng.lng;
                 var lat = e.latlng.lat;
-                var pt = qtree.find([lon, lat]);
-//	console.log(pt);
+//                var pt = qtree.find([lon, lat]);
+		var pt = nearest(qtree, lon, lat, qtree, -Infinity, -Infinity, Infinity, Infinity);
 //         alert(qtree.find([lon, lat]));
 //console.log(prevDot);
-            var ctx = canvasOverlay.canvas().getContext('2d');
+            var ctx = canvasOverlay.topCanvas().getContext('2d');
+
 //            ctx.fillStyle = "rgba(255,116,0, 1)";
+//	    parDot = canvasOverlay._map.latLngToContainerPoint([parCoords[1], parCoords[0]]);
+//console.log(parDot);
             selDot = canvasOverlay._map.latLngToContainerPoint([pt.all.geometry.coordinates[1], pt.all.geometry.coordinates[0]]);
-            ctx.clearRect(prevDot.x - 5, prevDot.y - 5, 10, 10);
-	    refillTopRight = canvasOverlay._map.containerPointToLatLng([prevDot.x-6, prevDot.y-6]);
-            refillBottomLeft = canvasOverlay._map.containerPointToLatLng([prevDot.x+6, prevDot.y+6]);
-	    redrawInBounds(refillTopRight.lng, refillBottomLeft.lat, refillBottomLeft.lng, refillTopRight.lat); 
-//	   console.log("DOT", dot); 
+
+        if (Math.abs(e.containerPoint.x - selDot.x) + Math.abs(e.containerPoint.y - selDot.y) < 14 ){
+                 document.getElementById("map").style.cursor = 'pointer';
+        } else {
+		document.getElementById("map").style.cursor = 'default';
+	}
+//	if (selDot != prevDot) {
+//		canvasOverlay._redraw();
+//	}
+//         var parentsDone = drawParents(selDot, pt.all.parentid, ctx);
+
+            ctx.clearRect(0, 0, canvasOverlay.topCanvas().width, canvasOverlay.topCanvas().height);
+//	    refillTopRight = canvasOverlay._map.containerPointToLatLng([prevDot.x-6, prevDot.y-6]);
+//            refillBottomLeft = canvasOverlay._map.containerPointToLatLng([prevDot.x+6, prevDot.y+6]);
+//	    redrawInBounds(refillTopRight.lng, refillBottomLeft.lat, refillBottomLeft.lng, refillTopRight.lat); 
+//	   console.log("DOT", selDot); 
 	    prevDot = {x:selDot.x, y:selDot.y};
 
-            ctx.fillStyle = "rgba(255,116,0, 1)";
+            ctx.fillStyle = "#FF5252";
             ctx.beginPath();
             ctx.arc(selDot.x, selDot.y, 5, 0, Math.PI * 2);
+//            ctx.arc(parDot.x, parDot.y, 5, 0, Math.PI * 2);
+
             ctx.fill();
             ctx.closePath();
 
@@ -351,11 +573,13 @@ var prevDot = {x:-1, y:-1};
 		var mapZoom = leafletMap.getZoom();
                 var mapBounds = leafletMap.getBounds();
                 subset = search(qtree, mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(), mapBounds.getNorth());
-console.log("MAP", mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(), mapBounds.getNorth());
+//console.log("MAP", mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(), mapBounds.getNorth());
             var ctx = params.canvas.getContext('2d');
             ctx.clearRect(0, 0, params.canvas.width, params.canvas.height);
 //            ctx.fillStyle = "rgba(255,116,0, 0.2)";
 	ctx.fillStyle = "#009688";
+ 	var pointSize = Math.min(5, Math.max(leafletMap.getZoom() - 6.0, 8/Math.log(subset.length), 0.6));
+var vertices = [];
             for (var i = 0; i < subset.length; i++) {
                 var d = subset[i];
 //		console.log(d);
@@ -364,11 +588,13 @@ console.log("MAP", mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(
 //dot =projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]);
 //		console.log(dot);
                     ctx.beginPath();
-                    ctx.arc(dot.x, dot.y, Math.min(5*mapZoom/20, 5), 0, Math.PI * 2);
+                    ctx.arc(dot.x, dot.y, pointSize, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.closePath();
 //                }
+		vertices.push([dot.x, dot.y]);
             }
+		drawParents(ctx);
         };
 
 

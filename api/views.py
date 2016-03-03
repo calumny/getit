@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from datetime import datetime, timedelta
+import hashlib
 import json
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -51,6 +52,34 @@ class JSONResponse(HttpResponse):
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
 
+def haversine(theta):
+    return (1-math.cos(theta))/2.0
+
+def haversinedistance(phi1, phi2, lambda1, lambda2):
+    r = 3959
+    return 2*r*math.asin(math.sqrt(haversine(theta2-theta1)+math.cos(theta1)*math.cos(theta2)*haversine(lambda2-lambda1)))
+
+def find_furthest_descendant(player, current_generation, current_furthest_dist):
+    next_generation = Player.objects.filter(parent__in = current_generation)
+    if (next_generation.count() == 0):
+        return current_furthest_dist
+    else:
+        for child in next_generation:
+            dist = haversinedistance(player.gave_it_lat, child.lat, player.gave_it_lon, child.lon)
+            if dist > current_furthest_dist:
+                player.furthest_descendant = child
+                player.save()
+                return find_furthest_descendant(player, next_generation, dist)
+
+@api_view(['GET'])
+def get_furthest_descendant(request):    
+    if request.user.is_authenticated():
+        user = request.user
+        player = Player.objects.get(user = user)
+        furthest_dist = find_furthest_descendant(player, [player], 0)
+        return JSONResponse({"distance":furthest_dist, "lat":player.furthest_descendant.lat, "lon":player.furthest_descendant.lon})
+    else:
+        return HttpResponse('Unauthorized', status=401)
 
 def add_generation(current_generation, generation_number, generations_list):
     next_generation = Player.objects.filter(parent__in = current_generation) 
@@ -80,7 +109,8 @@ def get_generations(request):
         generations_list = []
         generations_list = add_generation([player], 0, generations_list)
         return JSONResponse(generations_list)
-    return JSONResponse([])
+    else:
+        return HttpResponse('Unauthorized', status=401)
 
 @api_view(['POST'])
 def confirm_location(request):
@@ -96,7 +126,8 @@ def confirm_location(request):
 #	    f.write(request.data['lon'])
 	    player.save()
 	    return JSONResponse(True)
-    return JSONResponse(False)
+    else:
+        return HttpResponse('Unauthorized', status=401)
 
 @api_view(['POST'])    
 def give_it(request):
@@ -105,11 +136,12 @@ def give_it(request):
         player = Player.objects.get(user = user)
         if player.has_it:
             player.last_gave_it = timezone.now()
-            player.lat = request.data['lat']
-            player.lon = request.data['lon']
+            player.gave_it_lat = request.data['lat']
+            player.gave_it_lon = request.data['lon']
             player.save()
             return JSONResponse(True)
-    return JSONResponse(False)
+    else:
+        return HttpResponse('Unauthorized', status=401)
 
 from players.models import GCMDevice
 
@@ -120,7 +152,9 @@ def did_i_give_it(request):
         player = Player.objects.get(user = user)
         children = player.child.all().count()
         return JSONResponse(children)
-    return JSONResponse(0)
+    else:
+        return HttpResponse('Unauthorized', status=401)
+
 
 @api_view(['GET'])    
 def count(request):
@@ -134,10 +168,13 @@ def status(request):
         print(player.has_it)
 	print(player.id)
 	return JSONResponse(player.has_it)
-    return JSONResponse(False)
+    else:
+        return HttpResponse('Unauthorized', status=401)
+
         
 @api_view(['POST'])
 def get_it(request):
+    if request.user.is_authenticated():
         user = request.user
         player = Player.objects.get(user = user)
         if not player.has_it:
@@ -151,8 +188,8 @@ def get_it(request):
 
 
 	    for giver in recently_gave:
-		deltaLat = math.radians(abs(giver.lat - lat))
-		deltaLon = math.radians(abs(giver.lon - lon))
+		deltaLat = math.radians(abs(giver.gave_it_lat - lat))
+		deltaLon = math.radians(abs(giver.gave_it_lon - lon))
 		print(deltaLat)
 		print(deltaLon)
 		x = deltaLon * math.cos(math.radians(lat))
@@ -176,14 +213,19 @@ def get_it(request):
             return JSONResponse(False)
         else:
             return JSONResponse(True)
+    else:
+        return HttpResponse('Unauthorized', status=401)
+
                 
 @api_view(['POST'])
 def register(request):
     if request.user.is_authenticated():
 	return JSONResponse({'message' : 'That user has already been registered'})
     else:
-        user = User.objects.create(username = request.data['username'])
-	user.set_password(request.data['password'])
+        hashname = hashlib.sha1(request.data['username']).hexdigest()[:30]
+        hashword =hashlib.sha1(request.data['password']).hexdigest()[:30]
+        user = User.objects.create(username = hashname)
+	user.set_password(hashword)
         user.save()
     	token = Token.objects.get(user = user)
    	return JSONResponse({'key':token.key})
@@ -193,29 +235,39 @@ def set_gcm_token(request):
     if request.user.is_authenticated():
 	user = request.user
 	player = Player.objects.get(user = user)
-	gcmdevice = GCMDevice.objects.create(registration_id = request.data['key'])
+        gcmdevice = GCMDevice.objects.filter(registration_id = request.data['key']).first()
+        if gcmdevice is None:
+            gcmdevice = GCMDevice.objects.create(registration_id = request.data['key'])
 	gcmdevice.save()
 	player.gcmdevice = gcmdevice
 	player.save() 
 	return JSONResponse(True)
-    return JSONResponse(False)        
+    else:
+        return HttpResponse('Unauthorized', status=401)
+   
 
 @api_view(['POST'])
 def set_apns_token(request):
     if request.user.is_authenticated():
         user = request.user
         player = Player.objects.get(user = user)
-        apnsdevice = APNSDevice.objects.create(registration_id = request.data['key'])
+        apnsdevice = APNSDevice.objects.filter(registration_id = request.data['key']).first()
+        if apnsdevice is None:
+            apnsdevice = APNSDevice.objects.create(registration_id = request.data['key'])
         apnsdevice.save()
         player.apnsdevice = apnsdevice
         player.save()
         return JSONResponse(True)
-    return JSONResponse(False)
-
+    else:
+        return HttpResponse('Unauthorized', status=401)
         
 @api_view(['POST'])
 def get_token(request):
-    user = User.objects.get(username = request.data['username'])
+    hashname= hashlib.sha1(request.data['username']).hexdigest()[:30]
+    try:
+        user = User.objects.get(username = hashname)
+    except User.DoesNotExist:
+        return HTTPResponse('No such user', status=404)
     token = Token.objects.get(user = user)
     return JSONResponse({'key':token.key})
     

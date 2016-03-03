@@ -1,6 +1,7 @@
 import urllib
 import json
 from django.db import models
+from django.db.models.fields.related import SingleRelatedObjectDescriptor
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -11,6 +12,17 @@ from push_notifications.models import GCMDevice, APNSDevice
 
 # Create your models here.
 
+class SingleRelatedObjectDescriptorReturnsNone(SingleRelatedObjectDescriptor):
+    def __get__(self, instance, instance_type=None):
+        try:
+            return super(SingleRelatedObjectDescriptorReturnsNone, self).__get__(instance=instance, instance_type=instance_type)
+        except ObjectDoesNotExist:
+            return None
+
+class OneToOneOrNoneField(models.OneToOneField):
+    """A OneToOneField that returns None if the related object doesn't exist"""
+    related_accessor_class = SingleRelatedObjectDescriptorReturnsNone
+
 class Player(models.Model):
     user = models.ForeignKey(User)
     has_it = models.BooleanField(default = False)
@@ -20,9 +32,11 @@ class Player(models.Model):
     parent = models.ForeignKey('self', related_name='child', blank=True, null=True)
     lat = models.FloatField(null = True, blank = True)
     lon = models.FloatField(null = True, blank = True)
+    gave_it_lat = models.FloatField(null = True, blank = True)
+    gave_it_lon = models.FloatField(null = True, blank = True)
     generation = models.IntegerField(default = 0)
-    gcmdevice = models.ForeignKey(GCMDevice, blank = True, null = True)
-    apnsdevice = models.ForeignKey(APNSDevice, blank = True, null = True)
+    gcmdevice = OneToOneOrNoneField(GCMDevice, blank=True, null=True)
+    apnsdevice = OneToOneOrNoneField(APNSDevice, blank=True, null=True)
     descendants = models.IntegerField(default = 0)
 
 

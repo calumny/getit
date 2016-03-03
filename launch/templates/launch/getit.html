@@ -1,0 +1,314 @@
+<!doctype html>
+<html>
+<head>
+    <title>Get It</title>
+    <meta charset="utf-8">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,500' rel='stylesheet' type='text/css'>
+    <style>
+html, body{
+    font-family: 'Roboto', sans-serif;
+    color: #7B1FA2;
+    font-size: 6.2vw;
+    padding: 0;   
+    margin: 0;
+}
+::-webkit-scrollbar { 
+    display: none; 
+}
+.strokeme
+{
+    color: #9C27B0;
+}
+        
+.fit {
+  width: 100%;
+  max-height: 100%;
+}
+.center {
+  display: block;
+    position: relative;
+}
+        
+.badge {
+    height: 80px;  
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.interstitial {
+   background: #7B1FA2;
+   padding : 2vw;
+   color : #E1BEE7;
+   font-size: 6.4vw;
+   min-height:30vw;
+    text-align: center;
+
+}
+
+.detail {
+   background: #7B1FA2;
+   color:#E1BEE7;
+   color: #FFFFFF;
+   font-size: 1.6vw;
+   min-height: 24vw;
+}
+
+.right {
+   float:right;
+//   position:absolute;
+   width: 48vw;
+    padding-top:2vw;
+   display:block;
+   text-align:left;
+}
+
+.left {
+  padding-top:4vw;
+   width:48vw;
+   display:block;
+   left:0;
+   height:100%;
+   text-align:right;
+   float:left;
+}
+
+#getitButton {
+    background:#FF5252;
+    color: #7B1FA2;
+    font-size: 10vw;
+    text-align:center;
+    padding:2.5vw;
+    margin: 2vw;
+//    left:50%;
+    min-width:0;
+    display: inline-block;
+    cursor:pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+        
+.google_badge {
+    height: 80px;  
+    position: absolute;
+    bottom: 20px;
+    right: 320px;
+}
+    </style>
+</head>
+<body>
+    <div class="interstitial">
+<div id="getitButton">GET IT</div><br>
+It's as simple as pushing a button
+<br>
+The catch - someone needs to give it to you
+    </div>
+
+    <div style="text-align:center;position:relative;display:block;">
+        <img src="/static/friends.jpg" class="center fit">
+	<div style="width:32.5vw;background:#9C27B0;left:20vw;position:absolute;top:51vw;text-align:left;">
+        <span style="display:block;top:0vw;color:transparent;background:url(/static/friends.jpg);background-position:-20vw -51vw;-webkit-background-clip: text;background-size:100vw 66.640vw;">Then you'll <span style="color:#FF5252;">both</span> have it</span>
+    </div>
+<div class="detail">
+<div class="left">
+kjgflk
+</div>
+    <div class="right">
+<h3> You can't keep it forever</h3>
+Every month it resets, and few new people start with it<br>
+It's up to them to give it to as many people as they can
+    </div>
+</div>
+    <div style="text-align:center;position:relative;display:block;">
+        <img src="/static/city.jpeg" class="center fit">
+        <div style="background:#9C27B0;left:32vw;position:absolute;top:10vw;">
+	<span style="position:relative;top:0vw;color:transparent;background:url(/static/city.jpeg);background-position:-32vw -10vw;-webkit-background-clip: text;background-size:100vw 66.666vw;">How <span style="color:#FF5252;">far</span> can we get it?</span>
+    </div>
+    <div style="text-align:center;position:relative;display:block;">
+        <img src="/static/sherocks.jpg" class="center fit">
+         <div style="background:#9C27B0;left:2vw;position:absolute;top:11.5vw;">
+	<span style="position:relative;top:0vw;color:transparent;background:url(/static/sherocks.jpg);background-position:-2vw -11.5vw;-webkit-background-clip: text;background-size:100vw 66.588vw;white-space:pre;">It won't always be <span style="color:#FF5252;">easy</span></span>
+    </div>
+    <div style="text-align:center;position:relative;display:block;">
+        <img src="/static/nature-person-red-woman.jpg" class="center fit">
+       <div style="background:#9C27B0;left:24vw;position:absolute;top:16vw;"><span style="position:relative;color:transparent;background:url(/static/nature-person-red-woman.jpg);background-position:-24vw -16vw;-webkit-background-clip: text;background-size:100vw 66.25vw" class="strokeme">Now go out and <span style="color:#FF5252;">get it</span></span>
+       </div>
+	 <a href="https://play.google.com/store/apps/details?id=com.intension.ping&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img class="google_badge" alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" /></a>
+        <a href="https://play.google.com/store/apps/details?id=com.intension.ping&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img  class="badge" alt="Get it on Google Play" src="/static/Download_on_the_App_Store_Badge_US-UK_135x40.svg" /></a>
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script src="/static/rebound.min.js"></script>
+<script>// Get a reference to the logo element.
+var el = document.getElementById('getitButton');
+
+// create a SpringSystem and a Spring with a bouncy config.
+var springSystem = new rebound.SpringSystem();
+var spring = springSystem.createSpring(30, 5);
+var xRotSpring = springSystem.createSpring(20, 5);
+var yRotSpring = springSystem.createSpring(20, 5);
+var colorSpring = springSystem.createSpring(10, 9);
+var yRotVal = 0;
+var xRotVal = 0;
+var scaleVal = 1;
+
+// Add a listener to the spring. Every time the physics
+// solver updates the Spring's value onSpringUpdate will
+// be called.
+spring.addListener({
+  onSpringUpdate: function(spring) {
+    var val = spring.getCurrentValue();
+    val = rebound.MathUtil
+                 .mapValueInRange(val, 0, 1, 1, 0.8);
+    scale(el, val);
+  }
+});
+
+xRotSpring.addListener({
+  onSpringUpdate: function(spring) {
+    var val = spring.getCurrentValue();
+    val = rebound.MathUtil
+                 .mapValueInRange(val, -1, 1, -20, 20);
+    xRot(el, val);
+  }
+});
+
+yRotSpring.addListener({
+  onSpringUpdate: function(spring) {
+    var val = spring.getCurrentValue();
+    val = rebound.MathUtil
+                 .mapValueInRange(val, -1, 1, -20, 20);
+    yRot(el, val);
+  }
+});
+
+
+colorSpring.addListener({
+  onSpringUpdate: function(spring) {
+    var val = spring.getCurrentValue();
+    var initColor = d3.rgb("#FF5252");
+    var targetColor = d3.rgb("#9C27B0");
+    var interp = d3.interpolateRgb(initColor, targetColor);
+    el.style.backgroundColor = interp(val);
+  }
+});
+
+
+function getPosition(element) {
+    var xPosition = 0;
+    var yPosition = 0;
+      
+    while (element) {
+        xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+        yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+        element = element.offsetParent;
+    }
+    return { x: xPosition, y: yPosition };
+}
+
+var buttonWidth = el.offsetWidth;
+
+// Listen for mouse down/up/out and toggle the
+//springs endValue from 0 to 1.
+var drag = d3.behavior.drag();
+d3.select("#getitButton").call(drag);
+
+el.onmousedown = function(d) {
+//alert("hey");
+//console.log(d3.event.x - getPosition(el).x - el.clientWidth/2);
+  spring.setEndValue(1);
+  colorSpring.setEndValue(1);
+  var xpos = d.clientX - getPosition(el).x - el.clientWidth/2;
+  xRotSpring.setEndValue(2*xpos/el.clientWidth);
+  var ypos = d.clientY - getPosition(el).y - el.clientHeight/2;
+  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
+
+};
+
+el.addEventListener("touchstart", function(e) {
+//alert(d.o);
+//console.log(d3.event.x - getPosition(el).x - el.clientWidth/2);
+  var d = e.changedTouches[0];
+  spring.setEndValue(1);
+  colorSpring.setEndValue(1);
+  var xpos = d.pageX - getPosition(el).x - el.clientWidth/2;
+  xRotSpring.setEndValue(2*xpos/el.clientWidth);
+  var ypos = d.pageY - getPosition(el).y - el.clientHeight/2;
+  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
+
+});
+
+drag.on('drag', function(d) {
+//console.log(d3.event.x - getPosition(el).x - el.clientWidth/2);
+  spring.setEndValue(1);
+  colorSpring.setEndValue(1);
+  var xpos = d3.event.x - getPosition(el).x - el.clientWidth/2;
+  xRotSpring.setEndValue(2*xpos/el.clientWidth);
+  var ypos = d3.event.y - getPosition(el).y - el.clientHeight/2;
+  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
+
+  if (Math.abs(xpos) > el.clientWidth/2 + 10 || Math.abs(ypos) > el.clientHeight/2 + 10) {
+	resetButton();
+  }
+
+});
+
+drag.on('dragend', function(d) {
+  resetButton();
+});
+
+function resetButton() {
+  spring.setEndValue(0);
+  colorSpring.setEndValue(0);
+  xRotSpring.setEndValue(0);
+  yRotSpring.setEndValue(0);
+};
+
+el.addEventListener('mouseout', function() {
+  xRotSpring.setEndValue(0);
+  yRotSpring.setEndValue(0);
+  spring.setEndValue(0);
+});
+
+/*window.on('mouseup', function() {
+  xRotSpring.setEndValue(0);
+  yRotSpring.setEndValue(0);
+  spring.setEndValue(0);
+});
+*/
+// Helper for scaling an element with css transforms.
+function scale(el, val) {
+//  el.style.mozTransform =
+//  el.style.msTransform =
+//  el.style.webkitTransform =
+//  el.style.transform = 'scale3d(' +
+//    val + ', ' + val + ', 1)';
+  scaleVal = val;
+}
+
+function yRot(el, val) {
+//  el.style.mozTransform =
+//  el.style.msTransform =
+//  el.style.webkitTransform =
+//  el.style.transform = 'perspective(50vw) rotateX(' +
+//    val + 'deg)';
+  yRotVal = val;
+}
+
+
+function xRot(el, val) {
+  xRotVal = val;
+  el.style.mozTransform =
+  el.style.msTransform =
+  el.style.webkitTransform =
+  el.style.transform = 'perspective(600px) scale3d(' + scaleVal + ', ' + scaleVal + ', 1) rotateX(' + yRotVal + 'deg) rotateY(' +
+  xRotVal + 'deg)';
+}
+
+</script>
+</body>
+</html>
