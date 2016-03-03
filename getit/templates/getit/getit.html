@@ -4,40 +4,136 @@
     <title>Get It</title>
     <meta charset="utf-8">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,500' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <style>
 html, body{
     font-family: 'Roboto', sans-serif;
-    color: #9C27B0;
-    font-size: 120px;
-    padding: 0;   
+    color: #E1BEE7;
+    background: #7B1FA2;
+    font-size: 6.2vw;
+    padding: 0;
     margin: 0;
+
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* IE/Edge */
+  user-select: none;       
 }
-::-webkit-scrollbar { 
-    display: none; 
+        
+div {
+    color: #E1BEE7;
+    background: #7B1FA2;
+}
+        
+::-webkit-scrollbar {
+    display: none;
 }
 .strokeme
 {
     color: #9C27B0;
 }
-        
+
 .fit {
-  width: 100%;
+  width: 100%;  
+}
+
+.left {
+  width: 50%;
   max-height: 100%;
 }
-.center {
-  display: block;
-    position: relative;
+        
+.imageblock {
+    text-align:center;
+    position:relative;
+    display:block;
+    height: 45vw;
+    overflow: hidden;
 }
         
+.center {
+  display: block;
+  position: relative;
+    top: -10vw;
+}
+
 .badge {
-    height: 80px;  
+    height: 80px;
     position: absolute;
     bottom: 20px;
     right: 20px;
 }
+
+.interstitial {
+   background: #7B1FA2;
+    padding-top: 2vw;
+   min-height: 24vw;
+   font-size: 1.6vw;
+    text-align: center;
+
+}
+
+.detail {
+   background: #7B1FA2;
+   color:#E1BEE7;
+   font-size: 1.6vw;
+   min-height: 24vw;
+    text-align:center;
+}
         
+        h {
+           font-size: 4vw;
+            color: #FF5252;
+        }
+        
+        .detail h {
+            position: relative;
+            top: 8vw;
+        }
+
+.right {
+   float:right;
+//   position:absolute;
+   width: 32vw;
+    padding-top:2vw;
+    padding-right: 16vw;
+   display:block;
+   text-align:left;
+}
+
+.left {
+   width:32vw;
+    padding-left: 16vw;
+   display:block;
+   left:0;
+   text-align:center;
+   float:left;
+}
+
+#getitButton {
+    background:#FF5252;
+    color: #7B1FA2;
+    font-size: 5vw;
+    text-align:center;
+    padding:1.25vw;
+    margin: 2vw;
+//    left:50%;
+    min-width:0;
+    display: inline-block;
+    cursor:pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .google_badge {
-    height: 80px;  
+    height: 80px;
     position: absolute;
     bottom: 20px;
     right: 320px;
@@ -45,23 +141,243 @@ html, body{
     </style>
 </head>
 <body>
-    <div style="text-align:center;position:relative;display:block;">
-        <img src="friends.jpg" class="center fit">
-        <span style="left:690px;position:absolute;bottom:350px;text-align:left;color:#FF5252;width:650px;">Then you'll both have it</span>
+    <div class="interstitial">
+<h>It's as simple as pushing a button
+<br>
+<div id="getitButton">GET IT</div><br>
+    </h>
+        <div class="left">
+The only catch:<br>Someone needs to give it to you
+            </div>
+        <div class="right">
+    If you've got it, you can give it to someone else
+            </div>
     </div>
-    <div style="text-align:center;position:relative;display:block;">
-        <img src="city.jpeg" class="center fit">
-        <span style="left:40px;position:absolute;top:220px;text-align:center;color:#9C27B0;">How far can we get it?</span>
+    <div class="imageblock">
+        <img src="/static/friends.jpg" class="center fit">
+        <!--div style="background:#7B1FA2;position:absolute;top:26vw;left:11vw;width:16.25vw;text-align:left;"><span style="display:block;top:0vw;color:transparent;background:url(friends.jpg);background-position:-11vw -26vw;-webkit-background-clip: text;background-size:50vw 33.320vw;">Then you'll <span style="color:#FF5252;">both</span> have it</span></div-->
+        <div style="width:32.5vw;background:#7B1FA2;left:25vw;position:absolute;top:26vw;text-align:left;">
+        <span style="display:block;top:0vw;color:transparent;background:url(/static/friends.jpg);background-position:-25vw -36vw;-webkit-background-clip: text;background-size:100vw 66.640vw;">Then you'll <span style="color:#FF5252;">both</span> have it</span>
     </div>
-    <div style="text-align:center;position:relative;display:block;">
-        <img src="sherocks.jpg" class="center fit">
-        <span style="left:0px;position:absolute;top:60px;text-align:left;color:#FF5252;width:800px;">It won't always be easy</span>
     </div>
-    <div style="text-align:center;position:relative;display:block;">
-        <img src="nature-person-red-woman.jpg" class="center fit">
-        <span style="right:200px;position:absolute;top:300px;text-align:center;" class="strokeme">Now go out and get it</span>
-        <a href="https://play.google.com/store/apps/details?id=com.intension.ping&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img class="google_badge" alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" /></a>
-        <a href="https://play.google.com/store/apps/details?id=com.intension.ping&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img  class="badge" alt="Get it on Google Play" src="Download_on_the_App_Store_Badge_US-UK_135x40.svg" /></a>
+<div class="detail">
+<div class="left">
+<h><i class="material-icons" style="font-size:4vw;top:0.5vw;position:relative;">timer</i><span id="countdown">13d 6h 2m 31s</span></h><br><span style="position:relative;top:8vw;color:#FF5252">until reset</span>
+</div>
+    <div class="right">
+<h3> You can't keep it forever</h3>
+If nobody gets it for two weeks <b>it resets</b><br>New people start with it, and it's up to them to share it with others<br>The only way to keep it is to <b>give it</b>
     </div>
+</div>
+    <div class="imageblock">
+        <img src="/static/city.jpeg" class="center fit">
+        <div style="background:#7B1FA2;left:32vw;position:absolute;top:7vw;">
+        <span style="position:relative;top:0vw;color:transparent;background:url(/static/city.jpeg);background-position:-32vw -17vw;-webkit-background-clip: text;background-size:100vw 66.666vw;">How <span style="color:#FF5252;">far</span> can we get it?</span>
+    </div>
+    </div>
+    <div class="detail">
+        <div class="right"></div>
+    <h>2378 people have it</h><br><h>It's traveled 4307867 miles</h><br><h>In 43078 minutes</h>
+    </div>    
+    <div class="imageblock">
+        <img src="/static/sherocks.jpg" class="center fit">
+         <div style="background:#7B1FA2;left:2vw;position:absolute;top:1.5vw;">
+        <span style="position:relative;top:0vw;color:transparent;background:url(/static/sherocks.jpg);background-position:-2vw -11.5vw;-webkit-background-clip: text;background-size:100vw 66.588vw;">It won't always be <span style="color:#FF5252;">easy</span></span>
+    </div>
+    </div>
+    <div class="detail">
+    <h>But what would be the fun in that?</h>
+    </div>    
+    <div class="imageblock">
+        <img src="/static/nature-person-red-woman.jpg" class="center fit">
+       <div style="background:#7B1FA2;left:24vw;position:absolute;top:6vw;"><span style="position:relative;color:transparent;background:url(/static/nature-person-red-woman.jpg);background-position:-24vw -16vw;-webkit-background-clip: text;background-size:100vw 66.25vw" class="strokeme">Now go out and <span style="color:#FF5252;">get it</span></span>
+       </div>
+         <a href="https://play.google.com/store/apps/details?id=com.intension.ping&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img class="google_badge" alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" /></a>
+        <a href="https://play.google.com/store/apps/details?id=com.intension.ping&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1"><img  class="badge" alt="Get it on Google Play" src="/static/Download_on_the_App_Store_Badge_US-UK_135x40.svg" /></a>
+    </div>
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script src="/static/rebound.min.js"></script>
+<script>// Get a reference to the logo element.
+var el = document.getElementById('getitButton');
+
+// create a SpringSystem and a Spring with a bouncy config.
+var springSystem = new rebound.SpringSystem();
+var spring = springSystem.createSpring(30, 5);
+var xRotSpring = springSystem.createSpring(20, 5);
+var yRotSpring = springSystem.createSpring(20, 5);
+var colorSpring = springSystem.createSpring(10, 9);
+var yRotVal = 0;
+var xRotVal = 0;
+var scaleVal = 1;
+
+// Add a listener to the spring. Every time the physics
+// solver updates the Spring's value onSpringUpdate will
+// be called.
+spring.addListener({
+  onSpringUpdate: function(spring) {
+    var val = spring.getCurrentValue();
+    val = rebound.MathUtil
+                 .mapValueInRange(val, 0, 1, 1, 0.8);
+    scale(el, val);
+  }
+});
+
+xRotSpring.addListener({
+  onSpringUpdate: function(spring) {
+    var val = spring.getCurrentValue();
+    val = rebound.MathUtil
+                 .mapValueInRange(val, -1, 1, -20, 20);
+    xRot(el, val);
+  }
+});
+
+yRotSpring.addListener({
+  onSpringUpdate: function(spring) {
+    var val = spring.getCurrentValue();
+    val = rebound.MathUtil
+                 .mapValueInRange(val, -1, 1, -20, 20);
+    yRot(el, val);
+  }
+});
+
+
+colorSpring.addListener({
+  onSpringUpdate: function(spring) {
+    var val = spring.getCurrentValue();
+    var initColor = d3.rgb("#FF5252");
+    var targetColor = d3.rgb("#9C27B0");
+    var interp = d3.interpolateRgb(initColor, targetColor);
+    el.style.backgroundColor = interp(val);
+  }
+});
+
+
+function getPosition(element) {
+    var xPosition = 0;
+    var yPosition = 0;
+
+    while (element) {
+        xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+        yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+        element = element.offsetParent;
+    }
+    return { x: xPosition, y: yPosition };
+}
+
+    (function worker() {
+  $.ajax({
+    url: '{% url 'api:get_stats' %}', 
+    success: function(data) {
+      $('#countdown').html(data);
+    },
+    complete: function() {
+      setTimeout(worker, 5000);
+    }
+  });
+})();
+    
+
+var buttonWidth = el.offsetWidth;
+
+// Listen for mouse down/up/out and toggle the
+//springs endValue from 0 to 1.
+var drag = d3.behavior.drag();
+d3.select("#getitButton").call(drag);
+
+el.onmousedown = function(d) {
+//alert("hey");
+//console.log(d3.event.x - getPosition(el).x - el.clientWidth/2);
+  spring.setEndValue(1);
+  colorSpring.setEndValue(1);
+  var xpos = d.clientX - getPosition(el).x - el.clientWidth/2;
+  xRotSpring.setEndValue(2*xpos/el.clientWidth);
+  var ypos = d.clientY - getPosition(el).y - el.clientHeight/2;
+  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
+
+};
+
+el.addEventListener("touchstart", function(e) {
+//alert(d.o);
+//console.log(d3.event.x - getPosition(el).x - el.clientWidth/2);
+  var d = e.changedTouches[0];
+  spring.setEndValue(1);
+  colorSpring.setEndValue(1);
+  var xpos = d.pageX - getPosition(el).x - el.clientWidth/2;
+  xRotSpring.setEndValue(2*xpos/el.clientWidth);
+  var ypos = d.pageY - getPosition(el).y - el.clientHeight/2;
+  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
+
+});
+
+drag.on('drag', function(d) {
+//console.log(d3.event.x - getPosition(el).x - el.clientWidth/2);
+  spring.setEndValue(1);
+  colorSpring.setEndValue(1);
+  var xpos = event.x - getPosition(el).x - el.clientWidth/2;
+  xRotSpring.setEndValue(2*xpos/el.clientWidth);
+  var ypos = event.y - getPosition(el).y - el.clientHeight/2;
+  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
+
+  if (Math.abs(xpos) > el.clientWidth/2 + 10 || Math.abs(ypos) > el.clientHeight/2 + 10) {
+      resetButton();
+  }
+
+});
+
+drag.on('dragend', function(d) {
+  resetButton();
+});
+
+function resetButton() {
+  spring.setEndValue(0);
+  colorSpring.setEndValue(0);
+  xRotSpring.setEndValue(0);
+  yRotSpring.setEndValue(0);
+};
+
+el.addEventListener('mouseout', function() {
+  xRotSpring.setEndValue(0);
+  yRotSpring.setEndValue(0);
+  spring.setEndValue(0);
+});
+
+/*window.on('mouseup', function() {
+  xRotSpring.setEndValue(0);
+  yRotSpring.setEndValue(0);
+  spring.setEndValue(0);
+});
+*/
+// Helper for scaling an element with css transforms.
+function scale(el, val) {
+//  el.style.mozTransform =
+//  el.style.msTransform =
+//  el.style.webkitTransform =
+//  el.style.transform = 'scale3d(' +
+//    val + ', ' + val + ', 1)';
+  scaleVal = val;
+}
+
+function yRot(el, val) {
+//  el.style.mozTransform =
+//  el.style.msTransform =
+//  el.style.webkitTransform =
+//  el.style.transform = 'perspective(50vw) rotateX(' +
+//    val + 'deg)';
+  yRotVal = val;
+}
+
+
+function xRot(el, val) {
+  xRotVal = val;
+  el.style.mozTransform =
+  el.style.msTransform =
+  el.style.webkitTransform =
+  el.style.transform = 'perspective(600px) scale3d(' + scaleVal + ', ' + scaleVal + ', 1) rotateX(' + yRotVal + 'deg) rotateY(' +
+  xRotVal + 'deg)';
+}
+
+</script>
 </body>
 </html>
