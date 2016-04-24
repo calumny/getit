@@ -38,7 +38,7 @@ div {
 }
 
 .fit {
-  width: 100%;  
+  width: 100vw;   
 }
 
 .left {
@@ -51,20 +51,33 @@ div {
     position:relative;
     display:block;
     height: 45vw;
+    width: 100vw;
     overflow: hidden;
+    margin:0;
+    padding:0;
+}
+
+.imageblock.mobile {
+   height:100%;
+   max-height: 100vh;
 }
         
 .center {
   display: block;
   position: relative;
-    top: -10vw;
+  top: -10vw;
 }
+
+.center.mobile {
+  top :0vw;
+}
+
 
 .badge {
     height: 80px;
     position: absolute;
     bottom: 20px;
-    right: 20px;
+    right: 20px;    
 }
 
 .interstitial {
@@ -77,22 +90,56 @@ div {
 }
 
 .detail {
+   position:relative;
    background: #7B1FA2;
    color:#E1BEE7;
    font-size: 1.6vw;
+   display:block;
+   width : 100vw;
    min-height: 24vw;
     text-align:center;
 }
+
+.detail.mobile {
+  font-size: 3.2vw;
+  min-height:60vw;
+}
+
+
+.topDetail {
+   background: #7B1FA2;
+   color:#E1BEE7;
+   font-size: 1.6vw;
+   display:block;
+   width : 100vw;
+   min-height: 24vw;
+    text-align:center;
+}
+
+.topDetail.mobile {
+  font-size: 3.2vw;
+  min-height:60vw;
+}
+
         
         h {
            font-size: 4vw;
             color: #FF5252;
         }
+
+
+.mobile h {
+  font-size: 8vw;
+}
         
         .detail h {
             position: relative;
             top: 8vw;
         }
+
+.detail.mobile h {
+//	top: 12vw;
+}
 
 .right {
    float:right;
@@ -103,14 +150,23 @@ div {
    display:block;
    text-align:left;
 }
+.mobile .right {
+    width: 40vw;
+    padding-right: 8vw;
+}
 
 .left {
-   width:32vw;
-    padding-left: 16vw;
+   width:36vw;
+    padding-left: 12vw;
    display:block;
    left:0;
    text-align:center;
    float:left;
+}
+
+.mobile .left {
+    width:48vw;
+    padding-left:0vw;
 }
 
 #getitButton {
@@ -121,7 +177,7 @@ div {
     padding:1.25vw;
     margin: 2vw;
 //    left:50%;
-    min-width:0;
+//    min-width:0;
     display: inline-block;
     cursor:pointer;
     -webkit-touch-callout: none;
@@ -130,6 +186,11 @@ div {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+#getitButton.mobile {
+   font-size: 10vw;
+   padding:2.5vw;
 }
 
 .google_badge {
@@ -141,21 +202,20 @@ div {
     </style>
 </head>
 <body>
-    <div class="interstitial">
-<h>It's as simple as pushing a button
-<br>
+ <div class="topDetail">   
+<div>
+<h>It's as simple as pushing a button</h>
+</div>
 <div id="getitButton">GET IT</div><br>
-    </h>
-        <div class="left">
+        <!--div class="left">
 The only catch:<br>Someone needs to give it to you
             </div>
         <div class="right">
     If you've got it, you can give it to someone else
-            </div>
-    </div>
+            </div-->
+</div> 
     <div class="imageblock">
         <img src="/static/friends.jpg" class="center fit">
-        <!--div style="background:#7B1FA2;position:absolute;top:26vw;left:11vw;width:16.25vw;text-align:left;"><span style="display:block;top:0vw;color:transparent;background:url(friends.jpg);background-position:-11vw -26vw;-webkit-background-clip: text;background-size:50vw 33.320vw;">Then you'll <span style="color:#FF5252;">both</span> have it</span></div-->
         <div style="width:32.5vw;background:#7B1FA2;left:25vw;position:absolute;top:26vw;text-align:left;">
         <span style="display:block;top:0vw;color:transparent;background:url(/static/friends.jpg);background-position:-25vw -36vw;-webkit-background-clip: text;background-size:100vw 66.640vw;">Then you'll <span style="color:#FF5252;">both</span> have it</span>
     </div>
@@ -166,7 +226,7 @@ The only catch:<br>Someone needs to give it to you
 </div>
     <div class="right">
 <h3> You can't keep it forever</h3>
-If nobody gets it for two weeks <b>it resets</b><br>New people start with it, and it's up to them to share it with others<br>The only way to keep it is to <b>give it</b>
+If nobody gets it for two weeks <b>it resets</b><br>New people get it, and it's up to them to share it with others<br>The best way to keep it is to <b>give it</b>
     </div>
 </div>
     <div class="imageblock">
@@ -175,11 +235,18 @@ If nobody gets it for two weeks <b>it resets</b><br>New people start with it, an
         <span style="position:relative;top:0vw;color:transparent;background:url(/static/city.jpeg);background-position:-32vw -17vw;-webkit-background-clip: text;background-size:100vw 66.666vw;">How <span style="color:#FF5252;">far</span> can we get it?</span>
     </div>
     </div>
-    <div class="detail">
-        <div class="right"></div>
-    <h>2378 people have it</h><br><h>It's traveled 4307867 miles</h><br><h>In 43078 minutes</h>
-    </div>    
-    <div class="imageblock">
+
+      <div id="map" frameBorder="0" style="display:block;height:24vw;width:100vw">
+</div>
+    <div style="display:block;padding-left:2vw;height:0;font-size:4vw;position:relative;top:-22vw;background-color:transparent;"><h>{{has_it_count}} people have it</h><br><h>It's traveled {{distance}} miles</h><br><h>In {{minutes}} minutes</h>
+</div>
+<div class="imageblock">
+        <img src="/static/wall.jpg" class="center fit"> 
+        <div style="width:45vw;background:#7B1FA2;left:5vw;position:absolute;top:5vw;text-align:left;">
+        <span style="display:block;top:0vw;color:transparent;background:url(/static/wall.jpg);background-position:-5vw -4vw;-webkit-background-clip: text;background-size:100vw 66.640vw;">Some of us will get it with ease</span>
+    </div>
+</div>
+<div class="imageblock">
         <img src="/static/sherocks.jpg" class="center fit">
          <div style="background:#7B1FA2;left:2vw;position:absolute;top:1.5vw;">
         <span style="position:relative;top:0vw;color:transparent;background:url(/static/sherocks.jpg);background-position:-2vw -11.5vw;-webkit-background-clip: text;background-size:100vw 66.588vw;">It won't always be <span style="color:#FF5252;">easy</span></span>
@@ -199,7 +266,50 @@ If nobody gets it for two weeks <b>it resets</b><br>New people start with it, an
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 <script src="/static/rebound.min.js"></script>
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+
 <script>// Get a reference to the logo element.
+
+
+
+    var Environment = {
+        //mobile or desktop compatible event name, to be used with '.on' function
+        TOUCH_DOWN_EVENT_NAME: 'mousedown touchstart',
+        TOUCH_UP_EVENT_NAME: 'mouseup touchend',
+        TOUCH_MOVE_EVENT_NAME: 'mousemove touchmove',
+        TOUCH_DOUBLE_TAB_EVENT_NAME: 'dblclick dbltap',
+
+        isAndroid: function() {
+            return navigator.userAgent.match(/Android/i);
+        },
+        isBlackBerry: function() {
+            return navigator.userAgent.match(/BlackBerry/i);
+        },
+        isIOS: function() {
+            return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        },
+        isOpera: function() {
+            return navigator.userAgent.match(/Opera Mini/i);
+        },
+        isWindows: function() {
+            return navigator.userAgent.match(/IEMobile/i);
+        },
+        isMobile: function() {
+            return (Environment.isAndroid() || Environment.isBlackBerry() || Environment.isIOS() || Environment.isOpera() || Environment.isWindows());
+        }
+    };
+
+if(Environment.isMobile()) {
+	d3.selectAll("#getitButton, .imageblock, .center, .detail").classed("mobile", true);
+}
+
+function resizing()  { $("*").css("z-index", 1) }
+window.onresize=resizing;
+window.orientationchange=resizing;
+
 var el = document.getElementById('getitButton');
 
 // create a SpringSystem and a Spring with a bouncy config.
@@ -211,6 +321,47 @@ var colorSpring = springSystem.createSpring(10, 9);
 var yRotVal = 0;
 var xRotVal = 0;
 var scaleVal = 1;
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+    var position;
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(setPosition);
+    }
+
+function setPosition(loc) {
+	position = loc;
+	leafletMap.setView([loc.coords.latitude, loc.coords.longitude], 16);	
+}
+
+        var lat = "42.3601";
+        var lon = "-71.0589";      
+
+            var leafletMap = L.map('map',
+                {
+                        maxBounds: [
+                                [-89.0, -180.0],
+                                [89.0, 180.0]
+                        ],
+                        minZoom: 2,
+			zoomControl: false
+                }).setView([lat, lon], 16).on('dblclick', function(e) {
+  			window.location.href = '/map/';
+		});
+
+        leafletMap.doubleClickZoom.disable();  
+	leafletMap.scrollWheelZoom.disable();    
+	leafletMap.setZoom(16);
+
+//	L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],(toner-lite,$fff[difference])[exclusion],(toner-hybrid,$ff5252[source-in])[hsl-color])/{z}/{x}/{y}.png").addTo(leafletMap);
+
+            L.tileLayer("http://{s}.sm.mapstack.stamen.com/($7b1fa2[@p],toner-lite[soft-light],$ff5252[difference@p],$ff0000[hsl-saturation@p])/{z}/{x}/{y}.png").addTo(leafletMap);
 
 // Add a listener to the spring. Every time the physics
 // solver updates the Spring's value onSpringUpdate will
@@ -224,14 +375,14 @@ spring.addListener({
   }
 });
 
-xRotSpring.addListener({
-  onSpringUpdate: function(spring) {
-    var val = spring.getCurrentValue();
-    val = rebound.MathUtil
-                 .mapValueInRange(val, -1, 1, -20, 20);
-    xRot(el, val);
-  }
-});
+//xRotSpring.addListener({
+//  onSpringUpdate: function(spring) {
+//    var val = spring.getCurrentValue();
+//    val = rebound.MathUtil
+//                 .mapValueInRange(val, -1, 1, -20, 20);
+//    xRot(el, val);
+//  }
+//});
 
 yRotSpring.addListener({
   onSpringUpdate: function(spring) {
@@ -253,7 +404,7 @@ colorSpring.addListener({
   }
 });
 
-
+/*
 function getPosition(element) {
     var xPosition = 0;
     var yPosition = 0;
@@ -265,18 +416,44 @@ function getPosition(element) {
     }
     return { x: xPosition, y: yPosition };
 }
+*/
+var resetDate;
+
+function updateCountdown() {
+	var nowDate = new Date();
+	var dateDifference = resetDate - nowDate;
+	var seconds = Math.round((dateDifference)/1000);
+	var minutes = Math.floor(seconds/60);
+	var hours = Math.floor(minutes/60);
+	var days = Math.floor(hours/24);
+	seconds = seconds % 60;
+	minutes = minutes % 60;
+	hours = hours % 24;
+	$('#countdown').html(days + "d " + hours + "h " + minutes + "m " + seconds + "s ");
+	var n = document.createTextNode(' ');
+	$('#countdown').append(n);
+	setTimeout(function(){n.parentNode.removeChild(n)}, 0);
+
+}
 
     (function worker() {
   $.ajax({
-    url: '{% url 'api:get_stats' %}', 
+    url: '/api/get_stats', 
     success: function(data) {
-      $('#countdown').html(data);
+	var resetdateString = data.reset_date;
+	resetDate = Date.parse(resetdateString);
     },
     complete: function() {
       setTimeout(worker, 5000);
     }
   });
 })();
+
+   (function update() {
+	updateCountdown();
+      setTimeout(update, 1000);
+})();
+
     
 
 var buttonWidth = el.offsetWidth;
@@ -291,10 +468,10 @@ el.onmousedown = function(d) {
 //console.log(d3.event.x - getPosition(el).x - el.clientWidth/2);
   spring.setEndValue(1);
   colorSpring.setEndValue(1);
-  var xpos = d.clientX - getPosition(el).x - el.clientWidth/2;
-  xRotSpring.setEndValue(2*xpos/el.clientWidth);
-  var ypos = d.clientY - getPosition(el).y - el.clientHeight/2;
-  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
+//  var xpos = d.clientX - getPosition(el).x - el.clientWidth/2;
+//  xRotSpring.setEndValue(2*xpos/el.clientWidth);
+//  var ypos = d.clientY - getPosition(el).y - el.clientHeight/2;
+//  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
 
 };
 
@@ -315,14 +492,14 @@ drag.on('drag', function(d) {
 //console.log(d3.event.x - getPosition(el).x - el.clientWidth/2);
   spring.setEndValue(1);
   colorSpring.setEndValue(1);
-  var xpos = event.x - getPosition(el).x - el.clientWidth/2;
-  xRotSpring.setEndValue(2*xpos/el.clientWidth);
-  var ypos = event.y - getPosition(el).y - el.clientHeight/2;
-  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
+//  var xpos = event.x - getPosition(el).x - el.clientWidth/2;
+//  xRotSpring.setEndValue(2*xpos/el.clientWidth);
+//  var ypos = event.y - getPosition(el).y - el.clientHeight/2;
+//  yRotSpring.setEndValue(-2*ypos/el.clientHeight);
 
-  if (Math.abs(xpos) > el.clientWidth/2 + 10 || Math.abs(ypos) > el.clientHeight/2 + 10) {
-      resetButton();
-  }
+//  if (Math.abs(xpos) > el.clientWidth/2 + 10 || Math.abs(ypos) > el.clientHeight/2 + 10) {
+//      resetButton();
+//  }
 
 });
 
@@ -351,11 +528,11 @@ el.addEventListener('mouseout', function() {
 */
 // Helper for scaling an element with css transforms.
 function scale(el, val) {
-//  el.style.mozTransform =
-//  el.style.msTransform =
-//  el.style.webkitTransform =
-//  el.style.transform = 'scale3d(' +
-//    val + ', ' + val + ', 1)';
+  el.style.mozTransform =
+  el.style.msTransform =
+  el.style.webkitTransform =
+  el.style.transform = 'scale3d(' +
+    val + ', ' + val + ', 1)';
   scaleVal = val;
 }
 

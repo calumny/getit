@@ -6,19 +6,21 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.core import serializers
 from django.contrib.auth.forms import UserCreationForm
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from django import template
 from django.utils.six import BytesIO
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, renderer_classes
 from django.utils import timezone
 import math
 from django.dispatch import receiver
 from django.db.models import Sum
 
 from rest_framework.authtoken.models import Token
+from rest_framework_csv.renderers import CSVRenderer
 
 register = template.Library()
 
@@ -56,7 +58,7 @@ class JSONResponse(HttpResponse):
 def haversine(theta):
     return (1-math.cos(theta))/2.0
 
-def haversinedistance(phi1, phi2, lambda1, lambda2):
+def haversinedistance(theta1, theta2, lambda1, lambda2):
     r = 3959
     return 2*r*math.asin(math.sqrt(haversine(theta2-theta1)+math.cos(theta1)*math.cos(theta2)*haversine(lambda2-lambda1)))
 
@@ -113,6 +115,23 @@ def get_generations(request):
     else:
         return HttpResponse('Unauthorized', status=401)
 
+class MapRenderer (CSVRenderer):
+    header = ['lat', 'lon', 'last_got_it', 'id', 'parent']
+
+@api_view(['GET'])
+def get_map_locations(request):
+#    west = request.data['west']
+#    east = request.data['east']
+#    south = request.data['south']
+#    north = request.data['north']
+#    players = Player.objects.filter(has_it=True, lon__gte=west, lon__lte=east, lat__gte=south, lat__lte=north)
+    players = Player.objects.filter(has_it=True)
+    data = players.values_list('lat', 'lon', 'last_got_it', 'id', 'parent')
+#    data = serializers.serialize('json', players, fields=('lat', 'lon', 'last_got_it', 'id', 'parent'))
+#    content = [{'lat': player.lat, 'lon':player.lon, 'last_got_it':player.last_got_it, 'id':player.id, 'parent':player.parent} for player in players]
+#    return Response(content)
+    return JSONResponse(data)
+
 @api_view(['POST'])
 def confirm_location(request): 
     if request.user.is_authenticated():
@@ -143,6 +162,8 @@ def give_it(request):
             player.gave_it_lon = request.data['lon']
             player.save()
             return JSONResponse(True)
+        else:
+            return JSONResponse(False)
     else:
         return HttpResponse('Unauthorized', status=401)
 
@@ -167,7 +188,7 @@ def countdown(request):
 
 @api_view(['GET'])
 def get_stats(request):
-    player = Player.objects.filter(has_it=True).order_by('last_got_it').last()
+    player = Player.objects.exclude(last_got_it__isnull=True).filter(has_it=True).order_by('last_got_it').last()
     last_got_it = player.last_got_it
     reset_date = last_got_it + timedelta(days=14)
     current_round = Round.objects.get(current=True)
@@ -176,9 +197,9 @@ def get_stats(request):
     distance = Transfer.objects.filter(play_round = current_round).aggregate(Sum('distance'))['distance__sum']
     if distance is None:
         distance = 0
-    time_elapsed = (timezone.now() - current_round.start_date).total_seconds()
+    time_elapsed = (last_got_it - current_round.start_date).total_seconds()
     mph = distance/time_elapsed * 3600
-    players_per_second = (has_it_count - started_with_it)/time_elapsed
+    players_per_second = (has_it_count - started_with_it)/((timezone.now()-current_round.start_date).total_seconds())
     stats = {"reset_date":reset_date, "has_it_count":has_it_count, "distance":distance, "mph":mph, "players_per_second":players_per_second}
     return JSONResponse(stats)
 
@@ -237,9 +258,9 @@ def get_it(request):
 
 		    player.save()
 
-                    travel_dist = haversinedistance(giver.lat, player.lat, giver.lon, player.lon)
+                    travel_dist = haversinedistance(math.radians(giver.lat), math.radians(player.lat), math.radians(giver.lon), math.radians(player.lon))
                     play_round = Round.objects.get(current=True)
-                    transfer = Transfer.objects.create(from_player = giver, to_player = player, distance = travel_dist, date = player.last_got_it, play_round = play_round)
+                    transfer = Transfer.objects.create(from_lat = giver.lat, from_lon = giver.lon, to_lat = player.lat, to_lon = player.lon, from_player = giver, to_player = player, distance = travel_dist, date = player.last_got_it, play_round = play_round)
 
                     return JSONResponse(increment_descendants(giver))            
             return JSONResponse(False)

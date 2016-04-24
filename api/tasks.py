@@ -5,7 +5,58 @@ from django.db.models import Q
 from celery import shared_task
 from django.utils import timezone
 
-from players.models import Player, GCMDevice, APNSDevice, Round
+from players.models import User, Player, GCMDevice, APNSDevice, Round, Transfer
+from api.views import haversinedistance
+
+from datetime import datetime, timedelta
+
+import csv
+import operator
+import random
+import math
+import hashlib
+
+@shared_task
+def import_sample_data():
+    print("IMPORTING DATA")
+    with open('/home/sites/getit/static/testDataCZ.csv', 'rb') as csvfile:
+        test_data = csv.DictReader(csvfile)
+        i = 0
+        
+        get_it_time = timezone.now()
+        players = []
+
+        for row in test_data:
+            i += 1
+            print row['time']
+            print i
+            hashname = hashlib.sha1(row['selfid']).hexdigest()[:30]
+            hashword =hashlib.sha1(row['selfid']).hexdigest()[:30]
+            user = User.objects.create(username = hashname)
+            user.set_password(hashword)
+            user.save()
+            player = Player.objects.get(user = user)
+            player.lat = float(row['latitude'])
+            player.lon = float(row['longitude'])
+            player.last_got_it = get_it_time
+            player.has_it = True
+            if (i == 1):
+                player.started_with_it = True
+                player.generation = 0
+            else:
+                parent = random.choice(players)
+                player.parent = parent
+                travel_dist = haversinedistance(math.radians(parent.lat), math.radians(player.lat), math.radians(parent.lon), math.radians(player.lon))
+                play_round = Round.objects.get(current=True)
+                transfer = Transfer.objects.create(from_lat = parent.lat, from_lon = parent.lon, to_lat = player.lat, to_lon = player.lon, from_player = parent, to_player = player, distance = travel_dist, date = player.last_got_it, play_round = play_round)
+                print "TRANSFER "
+                print travel_dist
+            get_it_time = get_it_time + timedelta(minutes=1)
+            player.save()
+            print "SAVED PLAYER"
+            print player.id
+            players.append(player)
+
 
 @shared_task
 def start_with_player(player_id):
